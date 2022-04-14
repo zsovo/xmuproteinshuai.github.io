@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Software</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Identification--ProteinProphet</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>ProteinProphet</center></h1>
+								<p>
+								ProteinProphet 通过数据库搜索程序（如SEQUEST）自动验证根据分配给MS/MS光谱的肽进行的蛋白质识别。
+								</p>
+								<hr class="major" />
+								<ul>
+								
+								<h2><center>主要功能</center></h2>
+								<p>
+								ProteinProphet最重要的是，解决了两个关键问题：<br>
+								与"单击"蛋白对应的肽（其他肽对应的肽）不太可能与"多击"蛋白对应。<br>
+								蛋白质先知从每个数据集中了解应调整多少肽概率以反映这种蛋白质分组信息。<br><br>
+								许多肽存在于不止一个数据库蛋白质条目中。蛋白质先知在所有相应的蛋白质中分配这些肽，以得出最简单的蛋白质列表来解释观察到的肽。<br>
+								ProteinProphet 分析的结果以简洁灵活的方式呈现为 HTML，允许筛选、排序和轻松访问数据库搜索结果。
+								通常，ProteinProphet 分析遵循 PeptideProphet，计算分配给MS/MS光谱的肽的概率是正确的，在量子实验的情况下，XPRESS 和/或 SAPRatio。<br>
+								</p>
+								<h4><center>ProteinProphet 是 ISB 开发的开源 LC/MS/MS 分析管道的组成部分之一</center></h4>
+								<p>
+								其他组件包括：<br>
+								mzXML 转换器和解析器，摘要 HTML 创建者，交互、XPRESS 定量和 ASAPRatio定量：http://sf.net/projects/sashimi/<br>
+								PeptideProphet： http://sf.net/projects/peptideprophet/<br>
+								</p>
+								<hr class="major" />
+								<ul>
+								
+							<section>
+								<h2><center>软件使用</center></h2>
+								<h4><center>ProteinProphet.pl</center></h4>
+								<p>
+								读取多肽和分配的概率，如肽预言所计算的概率，并计算蛋白质存在于原始样本中的概率。<br><br>
+								输出格式可以是：<br>
+								XML. 此格式为排序、筛选和查看数据提供了极大的多功能性.UtlilizeXML 变压器程序，如 xsltproc。<br>
+								HTML.此格式比 XML 更有限，但不需要 XML 转换器程序（如 xsltproc）。<br><br>
+								作为分析的第一步，从用于搜索与每种肽对应的所有蛋白质的数据库中恢复。这利用了肽预言输出程序。
+								</p>
+								<h4><center>运行</center></h4>
+								<p>
+								用于使用用户指定的选项运行蛋白质预言的包装器。
+								</p>
+								<hr class="major" />
+								<ul>
+								
+								<h2><center>覆盖</center></h2>
+								<h4><center>批量覆盖</center></h4>
+								<p>
+								读取用于搜索的数据库，以计算所有已识别蛋白质的百分比覆盖率（数据集中观察到的肽表示的蛋白质序列的百分比）。
+								</p>
+								<hr class="major" />
+								<ul>
+								
+								<h2><center>帮助图像</center></h2>
+								<h4><center>图像</center></h4>
+								<p>
+								单击蛋白质预言结果输出上的"帮助"按钮时显示的各种各样的 png 文件。
+								</p>
+								<hr class="major" />
+								
+								<h2><center>CGI计划</center></h2>
+								<h4><center>protxml2html.pl</center></h4>
+								<p>
+								CGI 程序采用用户的规范来编写样式表（在 XSL 中），
+								然后传递给 XML 转换器程序以生成所需的数据视图，
+								无论是 HTML、选项卡分隔文本还是 XML。这是查看蛋白质预言结果的主力，
+								在单击"筛选/排序/丢弃选中的条目"，"恢复原始"和"将显示的数据子集写入 Filt"后启动，
+								并在分析后由 ProteinProphet.pl 启动。
+								</p>
+								<h4><center>prot_wt_xml. pl</center></h4>
+								<p>
+								CGI程序，显示包含每种肽的所有蛋白质条目。通过单击肽重量启动。
+								</p>
+								<h4><center>peptide_html. pl</center></h4>
+								<p>
+								CGI程序，显示指定前体离子电荷和肽序列的所有搜索结果。
+								通过单击前体离子电荷/肽序列启动。
+								</p>
+								<h4><center>show_sens_err. pl</center></h4>
+								<p>
+								CGI程序，显示蛋白质预言预测的灵敏度和误差率，
+								作为最小概率阈值的函数。通过单击"敏感/错误信息"启动。
+								</p>
+								<h4><center>more_anal.pl</center></h4>
+								<p>
+								CGI 程序，显示蛋白质预言分析的详细信息，
+								以及输入文件和运行设置。
+								通过点击"更多分析信息"启动。
+								</p>
+								<h4><center>show_help.pl</center></h4>
+								<p>
+								CGI 程序，显示如何查看蛋白质预言结果的帮助，
+								显示帮助图像。通过单击"帮助"启动。
+								</p>
+								<h4><center>show_dataset_derivation.pl</center></h4>
+								<p>
+								CGI 程序，显示用于生成数据子集文件的筛选器。
+								通过单击"数据集派生信息"启动。
+								</p>
+								<h4><center>comet-fastadb.cgi</center></h4>
+								<p>
+								CGI程序，显示覆盖在蛋白质序列上的已识别肽。通过点击蛋白质名称启动。
+								</p>
+								<h4><center>prot_wt_html.pl</center></h4>
+								<p>
+								CGI程序，当蛋白质先知在"HTML"模式下运行时，
+								显示包含每种肽的所有蛋白质条目。通过单击肽重量启动。
+								</p>
+								<h4><center>reviseHTML.pl</center></h4>
+								<p>
+								在"HTML"模式下运行时过滤蛋白质预言结果的CGI程序。
+								</p>
+								<h4><center>restoreOriginalHTML.pl</center></h4>
+								<p>
+								在"HTML"模式下运行时，可恢复过滤的蛋白质预言结果的CGI程序。
+								</p>
+								<h4><center>parser</center></h4>
+								<p>
+								用于导入每个已识别蛋白质的 XPRESS 和 ASAPRatio 定量信息（当蛋白质预言在 X 或 A 模式下分别运行时）
+								以及记录用户更新的定量信息（通过单击定量比率）的多功能程序。
+								程序读取并写入蛋白质预言XML。
+								</p>
+								<h4><center>xpress-prophet.cgi</center></h4>
+								<p>
+								CGI 程序，显示有助于计算 XPRESS 蛋白质输入定量比的信息。通过点击XPRESS蛋白质比启动。
+								</p>
+								<h4><center>xpress-prophet-update.cgi</center></h4>
+								<p>
+								使用用户指定的数据更新蛋白质预言XML的CGI程序。通过单击"接受更改"启动。
+								</p>
+								<h4><center>asap-prophet-display.cgi</center></h4>
+								<p>
+								CGI 程序，显示有助于计算蛋白质进入的 ASAPRatio 定量比的信息。
+								通过点击 ASAPRAtio 蛋白质比启动。
+								</p>
+								</ul>
+
+								<ul class="actions">
+
+									<li><a href="SOFTWARE.html" class="button primary">Back</a></li>
+									
+								</ul>	
+							 </section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>OpenSWAH的安装</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">OpenSWAH的安装</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>在Max Os X上安装</center></h1>
+								<hr class="major" />
+									
+									<p>本文档说明了从其源代码构建OpenMS的安装过程。如果只想使用OpenMS蛋白质组学管道（TOPP），则强烈建议您下载二进制安装程序，而不是从源代码构建OpenMS。我们建议使用Homebrew安装OpenMS的大多数要求，以简化升级这些依赖项的过程。</p>
+									<p><b>所需的应用程序</b></br>
+										为了编译OpenMS，需要安装几个应用程序：
+										<ul>
+											<li>我们仅支持通过标准Appleclang编译器（需要您自担风险尝试使用GCC）构建OpenMS，并且仅在两个或三个最新的macOS版本上对编译进行测试。最小的安装可通过下载Apple的“命令行工具”来实现，但是我们建议您安装完整的Xcode（当前版本可以从Mac App Store获得；要求为4.2或更高版本）。可以在Apple Developer Site上找到更多详细信息。从macOS El Capitan 10.11开始，可以通过以下方式轻松安装“命令行工具”：<pre><code>xcode-select --install</code></pre></li>
+											<li>需要CMake（版本3.1或更高版本）来配置和构建OpenMS及其一些依赖项。</li>
+											<li>Qt5，其SVG模块和头文件是必需的。我们建议使用Homebrew通过以下方式安装Qt：<pre><code>brew install qt5</code></pre></li>
+										    <li>构建pyOpenMS（OpenMS的Python绑定）需要Python，Cython和一些Python软件包。请参阅此处以获取更多详细的pyOpenMS构建说明。</li>
+										    <li>如果您需要自己编译CoinMP，则还需要gfortran作为Fortran编译器。</li>
+										
+										</ul>
+										如果您的OpenMS版本是通过Git获得的开发版本，则需要以下应用程序来创建OpenMS文档：
+										<ul>
+											<li>Doxygen（推荐：> = 1.8.13，必填：> 1.7.1，其中一些可能会出现问题）用于生成OpenMS文档。</li>
+                                            <li>pdflatex是生成教程PDF所必需的。最新的MacTeX版本可在<a herf='http://tug.org/mactex/'>此处</a>下载</li>
+										</ul>
+									</p>
+								<hr class="major"/>
+								<h2>安装contrib包</h2>
+								<p>
+									为了方便安装OpenMS所需的库，我们提供了一个“ contrib程序包”，其中包含库Boost，Eigen，WildMagic，libSVM，libHDF5，SeqAn，glpk，zlib，bzip2，CoinMP和Xerces-C。
+								</br>contrib软件包包含在OpenMS发行软件包中，并且可以在contribOpenMS目录的目录中找到。
+								</br>如果您通过以下方式使用OpenMS的开发人员版本
+<pre><code>cd ~
+mkdir openms-development
+cd openms-development
+git clone https://github.com/OpenMS/OpenMS</code></pre>
+您必须通过调用以下命令检出空白文件夹：
+<pre><code>cd OpenMS
+git submodule update --init contrib
+</code></pre>
+CMake用于检查系统并构建contrib库。
+</br><b>注意:</b></br>为了避免在构建contrib软件包中包含的库时出现问题，contrib目录的路径不应包含任何空格。
+<br>1. 打开终端（/Applications/Utilities/Terminal.app）
+<br>2. 为OpenMS contrib创建一个构建目录，例如，
+<pre><code>mkdir〜/ openms-development / contrib_build</code></pr>
+3. 输入创建的目录并调用cmake以构建contrib
+<pre><code>cd &ltpath_to_contrib_build&gt
+cmake -DBUILD_TYPE=ALL -DNUMBER_OF_JOBS=4 -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang <path_to_OpenMS_contrib></code></pre>	
+	例：
+<pre><code>cd ~/openms-development/contrib_build
+cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ~/openms-development/OpenMS/contrib</code></pre>
+如果一切正常，则会在contrib构建目录下创建以下子目录：
+<ul>
+<li>lib/ 包含OpenMS所需的库。</li>
+<li>include/ 包含OpenMS所需的头文件。</li>
+</ul>
+<hr class="major"/>
+<h2>使用系统库</h2>
+<p>作为OpenMS附带的contrib库的替代方法，您还可以使用通过软件包管理器（Homebrew或MacPorts）安装的库。</p>
+<p>对于Homebrew，以下命令序列将安装OpenMS所需的大多数库。
+</p>
+
+<pre><code>brew install libsvm xerces-c boost glpk eigen sqlite hdf5</code></pre>
+
+<b>注意:</b>
+<ul>
+	<li>在将CoinMP完整软件包迁移到硬币或工具分流器之前，我们建议使用我们的contrib版本。然后，您将另外需要gfortran作为Fortran编译器进行构建。</li>
+	<li>压缩库bzip和zlib应该随macOS / XCode /命令行工具一起提供。</li>
+</ul>
+对于MacPorts，以下命令序列将安装OpenMS所需的一些库。
+<pre><code>sudo port install libsvm xercesc3 boost glpk eigen3 sqlite hdf5</code></pre>
+<p>其余的需要通过contrib安装。</p>
+<pre><code># assuming you cloned OpenMS to ~/openms-development/OpenMS
+cd ~/openms-development/OpenMS
+git submodule update --init contrib
+mkdir ../contrib-build
+cd ../contrib-build
+cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DBUILD_TYPE=SEQAN ~/openms-development/OpenMS/contrib
+cmake -DBUILD_TYPE=COINOR .
+cmake -DBUILD_TYPE=WILDMAGIC .</code></pre>
+<p><b>注意:</b>通过OpenMS中的适配器工具使用的某些第三方软件可能还需要安装Java运行时（通过cask install java）。</p>
+
+
+<hr class="major"/>
+<h2>安装OpenMS</h2>
+<p>假设您已经成功克隆了OpenMS并安装了所需的库，那么现在就可以构建OpenMS了。因此，请执行以下步骤：</p>
+<p>1. 打开终端（/Applications/Utilities/Terminal.app）</p>
+<p>2. 为OpenMS创建构建目录，例如，
+<pre><code>mkdir ~/openms-development/openms_build</code></pre>
+</p>
+<p>3. 调用cmake在那里创建构建系统
+<pre><code>cd &ltpath_to_OpenMS_build&gt
+cmake -DOPENMS_CONTRIB_LIBS=&ltpath_to_contrib_build&gt -DCMAKE_PREFIX_PATH="$(brew --prefix);$(brew --prefix qt5)" &ltpath_to_OpenMS&gt</code></pre>
+<b>注意：</b>如果您仍然安装了Qt4，请确保执行brew卸载或至少brew断开链接，以免被拾取。用contrib构建和传递的库也是如此。您可以使用该-DVARIABLE=VALUE选项设置<br>其他CMake变量。执行时会显示CMake变量的完整列表
+<br><b>注意：</b>常规cmake变量可在CMake帮助中找到。并非所有人都可以覆盖。<br>
+您需要cmake至少执行一次才能ccmake使用。
+</p>
+<p>您可以-DVARIABLE=VALUE在调用CMake时设置更多CMake变量添加选项。最重要的CMake变量是：</p>
+<b>OPENMS_CONTRIB_LIBS</b>
+<p>从github.com/OpenMS/contrib中查找contrib库的单独搜索路径，在CMAKE_PREFIX_PATH之前内部考虑了该路径，用于搜索，链接和添加包含目录。</p>
+<b>CMAKE_PREFIX_PATH</b>
+<p>contrib库的其他搜索路径。	
+[仅限MacOSX]如果要使用通过Homebrew或MacPorts安装的库，则可能需要提供相应的路径<br>-DCMAKE_PREFIX_PATH=/usr/local/Cellar适用-DCMAKE_PREFIX_PATH=/opt/local于MacPorts的Homebrew<br>请记住，Homebrew和MacPorts都不提供所有库，因此您还需要通过-DOPENMS_CONTRIB_LIBS指定自建贡献文件的路径</p>
+<b>Qt5_DIR</b>
+<p>Qt5 CMake文件的其他搜索路径。使用/PATH/TO/QT_INSTALLATION/lib/cmake/Qt5的价值。</p>
+<b>HAS_XSERVER=On/Off</b>
+<p>[仅Linux / MacOS]定义在构建OpenMS时是否有运行中的X Server。由于构建文档的一部分并运行某些测试需要运行X Server，因此可以使用此标志来禁用文档的那些<br>部分以及需要X Server的测试。（默认：开）</p>
+<b>ADDRESS_SANITIZER=On/Off</b>
+<p>[仅适用于g ++ / clang]启用/禁用地址清理器（ASAN）以查找访问冲突和其他错误。</p>
+<b>WITH_GUI=On/Off</b>
+<p>定义是否应该构建OpenMS GUI工具（TOPPView，TOPPAS）。如果您打算在没有GUI的情况下使用OpenMS，请将此标志设置为“关”（默认：开）</p>
+<b>ENABLE_TUTORIALS=On/Off</b>
+<p>使目标能够构建和安装pdf教程（需要LaTeX）。（默认：开）</p>
+<b>ENABLE_DOCS=On/Off</b>
+<p>启用文档目标，从而可以构建OpenMS文档。（默认：开）</p>
+<b>GIT_TRACKING=On/Off</b>
+<p>将Git校验和嵌入到库中。（默认：开）</p>
+<b>ENABLE_UPDATE_CHECK=On/Off</b>
+<p>调用任何TOPP / UTIL时，请在线检查OpenMS更新。（默认：开）</p>
+<b>CMAKE_BUILD_TYPE</b>
+<p>[仅makefile文件；不适用于XCode或VS]应该为“发布”（启用优化）或“调试”（启用调试信息以及前提条件/后置条件检查）。
+	默认值为“发布”。</p>
+<b>CMAKE_CXX_COMPILER</b>
+<p>定义要使用的C++编译器。</p>
+<b>MY_CXX_FLAGS</b>
+<p>您想要添加的其他自定义C ++编译选项（必须适合您选择的编译器）。例如，这对于将调试符号添加到发布版本中或进行性能分析（例如，对于'... -DMY_CXX_FLAGS =“-<br>Og; -ggdb; -g3; -fno-omit-frame-pointer”）可能很有用。 ...'）</p>
+<b>CMAKE_C_COMPILER</b>
+<p>定义要使用的C编译器。这应该与C ++编译器匹配。混合编译器（例如C++的clang++和C的gcc）可能会导致不确定的行为，因为某些内部设置（例如OpenMP支持）是使用C<br>编译器确定的，并且对于C++编译器假定是相同的。</p>
+<b>SEARCH_ENGINES_DIRECTORY （可选的）</b>
+<p>第三方搜索引擎（X！Tandem，OMSSA，MyriMatch，MSGF +，Fido）的位置。展平平台后，此目录应与https://github.com/OpenMS/THIRDPARTY 上搜索引擎存储库中<br>的示例结构相同。仅在OpenMS<br>安装程序中包含第三方工具时才需要此目录。</p>
+<b>PYOPENMS</b>
+<p>使用ON启用目标的Python绑定，另请参见pyOpenMS（Python绑定）。</p>
+<b>CMAKE_INSTALL_PREFIX</b>
+<p>bin /和lib /目录应安装到的路径（当<br>
+	sudo make install<br>
+希望在系统范围内进行安装：例如-DCMAKE_INSTALL_PREFIX = / usr / local /）
+<br><b>注意：</b>不支持在安装后移动这些目录。
+<br><b>对于开发，不支持安装前缀。在这种情况下，必须建立OpenMS！</b></p>
+<p>执行CMake之后，您可以通过调用以下命令列出make目标：</p>
+<pre><code>make targets</code></pre>
+<p>为了构建OpenMS库，TOPP工具，测试和本文档执行以下命令：</p>
+<pre><code>make</code></pre>
+<p>现在应该可以使用TOPP工具了。可执行文件位于bin构建目录的文件夹中。将此文件夹添加到PATH变量中以便于访问。</p>
+<b>注意: </b>
+<ul>
+<li>当您打算使用第三方搜索或推理引擎（例如XTandem或Fido）时，它们的二进制文件也必须位于中PATH。使用以下命令构建它们或将其下载到OpenMS源文件夹中
+</li><pre><code>git submodule update --init THIRDPARTY</code></pre>
+<li>并对您要使用的每个第三方工具进行以下调整（针对XTandem显示）：</li>
+<pre><code>export PATH=${PATH_TO_CLONED_OPENMS}/THIRDPARTY/${YOUR_OS}/${YOUR_ARCH}/XTandem:${PATH}</code></pre>
+<li>如果要在CMake中启用相应的测试，则必须在配置和生成项目之前进行。</li>
+</ul>
+<hr class="major"/>
+<h2>测试您的OpenMS / TOPP安装</h2>
+<p>安装OpenMS和TOPP之后，应该通过执行以下命令来测试安装：
+<pre><code>make test</code></pre>
+或<pre><code>ctest</code></pre></p>
+<p>使用ctest还可以通过使用-R [SUBSTRING]选项，并使用-j参数并行运行测试仅执行的测试的子集。例如，</p>
+<pre><code>ctest -R TOPP_ -j 4</code></pre>
+<p>将使用4个作业运行所有TOPP测试。</p>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

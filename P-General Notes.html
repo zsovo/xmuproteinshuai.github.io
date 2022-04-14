@@ -1,0 +1,727 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Pyteomics</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Pyteomics</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>数据访问</center></h1>
+								<p>以下部分专门介绍数据操作。蛋白质组学旨在支持（LC-）MS / MS数据，肽段鉴定结果和蛋白质数据库的最常见格式。</p>
+								<hr class="major"/>
+								<h2><a name="yibanshuoming">一般说明</a></h2>
+<p>下面提到的每个模块都对应一种文件格式。在每个模块中，顶层功能都read()允许对文件中的条目进行迭代。它的工作方式类似于内置open()，允许直接迭代并支持with我们建议使用的语法。因此，您可以执行以下操作：</p>
+<pre><code>>>> from pyteomics import mgf
+>>> reader = mgf.read('tests/test.mgf')
+>>> for spectrum in reader:
+>>>    ...
+>>> reader.close()</code></pre>
+<p>…但是建议这样做：</p>
+<pre><code>>>> from pyteomics import mgf
+>>> with mgf.read('tests/test.mgf') as reader:
+>>>     for spectrum in reader:
+>>>        ...</code></pre>
+<p>另外，大多数模块提供一种或几种实现不同解析模式的类，例如pyteomics.mgf.MGF和pyteomics.mgf.IndexedMGF。索引解析器建立文件条目的索引，因此除迭代外还允许随机访问。有关详细说明和示例，请参见<a href="#syjxq">索引解析器</a>。</p>		
+<p>除了read()只读取一个文件之外，这里描述的所有模块都具有读取多个文件的功能：chain()和 chain.from_iterable()。 等价于。 并且仅支持 语法。如果您不想使用语法，则可以仅使用函数和 。chain('f1', 'f2')chain.from_iterable(['f1', 'f2'])chain()chain.from_iterable()withwithitertoolschain()chain.from_iterable()</p>		
+<p>在本节中，我们始终 pyteomics.auxiliary.print_tree()显示各种解析器返回的数据的结构。将此调用替换为您需要对文件执行的实际处理。</p>
+<div class="box">
+<h3><a name="contents">目录</a></h3>
+<ul>
+	<li><a href="#yibanshuoming">一般说明</a></li>
+	<li><a href="#jywbgs">基于文本的格式</a></li>
+	<li><a href="#xmlgs">XML格式</a></li>
+	<li><a href="#skch">受控词汇</a></li>
+	<li><a href="#syjxq">索引解析器</a></li>
+	<li><a href="#fdr">FDR估算和过滤</a></li>
+</ul>
+</div>
+<hr class="major"/>
+								<h2><a name="jywbgs">基于文本的格式</a></h2>
+<h3>MGF </h3>
+<p>Mascot通用格式（MGF）是一种用于MS / MS数据的简单的人类可读格式。它允许存储MS / MS峰列表和实验参数。pyteomics.mgf是实现读写MGF文件的模块。</p>
+<b>阅读</b>
+<p>pyteomics.mgf.read()函数允许遍历频谱条目。光谱表示为dicts。默认情况下，MS / MS峰列表存储为numpy.ndarray对象m / z阵列和强度阵列。碎片电荷将存储在电荷阵列键下的屏蔽阵列中。参数存储为dictunder params键。</p>
+<p>这是一个使用示例：</p>
+<pre><code>>>> from pyteomics import mgf, auxiliary
+>>> with mgf.read('tests/test.mgf') as reader:
+>>>     auxiliary.print_tree(next(reader))
+m/z array
+params
+ -> username
+ -> useremail
+ -> mods
+ -> pepmass
+ -> title
+ -> itol
+ -> charge
+ -> mass
+ -> itolu
+ -> it_mods
+ -> com
+intensity array
+charge array</code></pre>
+<p>为了加快解析速度，或者如果您想避免使用解析速度numpy，可以pyteomics.mgf.read()使用convert_arrays和read_charges参数来调整的行为。</p>
+<b>读取文件头</b>
+<p>此外，pyteomics.mgf允许从具有pyteomics.mgf.read_header()功能的MGF文件中提取具有常规参数的标头。它还返回一个dict。</p>
+<pre><code>>>> header = mgf.read_header('tests/test.mgf')
+>>> auxiliary.print_tree(header)
+itolu
+itol
+username
+com
+useremail
+it_mods
+charge
+mods
+mass
+</code></pre>
+<b>基于类的接口</b>
+<p>从3.4.3版开始，MGF解析功能封装在一个类中： pyteomics.mgf.MGF。此类可用于：</p>
+<ul>
+	<li>文件的顺序解析（与相同read()）：
+<pre><code>>>> with mgf.MGF('tests/test.mgf') as reader:
+..:     for spectrum in reader:
+..:         ...</code></pre></li>
+    <li>访问文件头（与相同read_header()）：
+<pre><code>>>> f = mgf.MGF('tests/test.mgf')
+>>> f.header
+{'charge': [2, 3],
+ 'com': 'Based on http://www.matrixscience.com/help/data_file_help.html',
+ 'it_mods': 'Oxidation (M)',
+ 'itol': '1',
+ 'itolu': 'Da',
+ 'mass': 'Monoisotopic',
+ 'mods': 'Carbamidomethyl (C)',
+ 'useremail': 'leu@altered-state.edu',
+ 'username': 'Lou Scene'}</code></pre></li>
+	<li>通过标题直接访问光谱（与相同get_spectrum()）：
+<pre><code>>>> f = mgf.MGF('tests/test.mgf')
+>>> f['Spectrum 2']
+{'charge array': masked_array(data = [3 2 1 1 1 1],
+              mask = False,
+        fill_value = 0),
+ 'intensity array': array([  237.,   128.,   108.,  1007.,   974.,    79.]),
+ 'm/z array': array([  345.1,   370.2,   460.2,  1673.3,  1674. ,  1675.3]),
+ 'params': {'charge': [2, 3],
+  'com': 'Based on http://www.matrixscience.com/help/data_file_help.html',
+  'it_mods': 'Oxidation (M)',
+  'itol': '1',
+  'itolu': 'Da',
+  'mass': 'Monoisotopic',
+  'mods': 'Carbamidomethyl (C)',
+  'pepmass': (1084.9, 1234.0),
+  'rtinseconds': '25',
+  'scans': '3',
+  'title': 'Spectrum 2',
+  'useremail': 'leu@altered-state.edu',
+  'username': 'Lou Scene'}}</code></pre></li>
+</ul>
+<p><b>注意：</b>MGF对直接索引的支持是基本的，因为它实际上不保留索引，并且每次调用都必须逐行搜索文件。pyteomics.mgf.IndexedMGF是为随机访问等而设计的（有关详细信息，请参见<a href="#syjxq">索引解析器</a>）。</p>
+<b>写作</b>
+<p>MGF文件的创建在pyteomics.mgf.write()功能上实现。用户可以指定标头，与所返回格式相同的光谱的可迭代光谱read()以及输出路径。</p>
+<pre><code>>>> spectra = mgf.read('tests/test.mgf')
+>>> mgf.write(spectra=spectra, header=header)
+USERNAME=Lou Scene
+ITOL=1
+USEREMAIL=leu@altered-state.edu
+MODS=Carbamidomethyl (C)
+IT_MODS=Oxidation (M)
+CHARGE=2+ and 3+
+MASS=Monoisotopic
+ITOLU=Da
+COM=Taken from http://www.matrixscience.com/help/data_file_help.html
+
+BEGIN IONS
+TITLE=Spectrum 1
+PEPMASS=983.6
+846.6 73.0
+846.8 44.0
+847.6 67.0
+1640.1 291.0
+1640.6 54.0
+1895.5 49.0
+END IONS
+
+BEGIN IONS
+TITLE=Spectrum 2
+RTINSECONDS=25
+PEPMASS=1084.9
+SCANS=3
+345.1 237.0
+370.2 128.0
+460.2 108.0
+1673.3 1007.0
+1674.0 974.0
+1675.3 79.0
+END IONS</code></pre>
+
+<h3>MS1和MS2</h3>
+<p>MS1和MS2是用于MS1和MSn数据的简单的人类可读格式。它允许存储峰列表和实验参数。就像MS1和MS2格式非常类似于MGF一样，相应的模块（pyteomics.ms1和pyteomics.ms2）提供相同的功能和类，并具有非常相似的签名，以便从文件中读取标头和光谱。
+<br>
+目前不支持书写。</p>
+
+<h3>FASTA </h3>
+<p>FASTA是蛋白质序列数据库的常用格式。</p>
+<b>阅读</b>
+<p>要从FASTA数据库中提取数据，请使用该pyteomics.fasta.read() 功能。</p>
+<pre><code>>>> from pyteomics import fasta
+>>> with fasta.read('/path/to/file/my.fasta') as db:
+>>>     for entry in db:
+>>>         ...</code></pre>
+<p>就像Pyteomics中的其他解析器一样，pyteomics.fasta.read() 返回一个generator对象而不是a list以防止过多使用内存。生成器生成（描述，序列）元组，因此使用它很自然，如下所示：</p>
+<pre><code>>>> with fasta.read('/path/to/file/my.fasta') as db:
+>>>     for descr, seq in db:
+>>>         ...</code></pre>
+<p>您还可以使用属性来访问描述和顺序：</p>
+<pre><code>>>> with fasta.read('my.fasta') as reader:
+>>>     descriptions = [item.description for item in reader]</code></pre>
+<b>说明解析</b>
+<p>为了方便起见，您可以指定一个将应用于FASTA标头的函数。pyteomics.fasta.std_parsers具有一些可用于此目的的预定义解析器。</p>
+<pre><code>>>> with fasta.read('HUMAN.fasta', parser=fasta.std_parsers['uniprot']) as r:
+>>>    print(next(r).description)
+{'PE': 2, 'gene_id': 'LCE6A', 'GN': 'LCE6A', 'id': 'A0A183', 'taxon': 'HUMAN',
+ 'SV': 1, 'OS': 'Homo sapiens', 'entry': 'LCE6A_HUMAN',
+ 'name': 'Late cornified envelope protein 6A', 'db': 'sp'}</code></pre>
+<p>或尝试猜测标题格式：</p>
+<pre><code>>>> with fasta.read('HUMAN.fasta', parser=fasta.parse) as r:
+>>>    print(next(r).description)
+{'PE': 2, 'gene_id': 'LCE6A', 'GN': 'LCE6A', 'id': 'A0A183', 'taxon': 'HUMAN',
+ 'SV': 1, 'OS': 'Homo sapiens', 'entry': 'LCE6A_HUMAN',
+ 'name': 'Late cornified envelope protein 6A', 'db': 'sp'}</code></pre>
+<b>基于类的接口</b>
+<p>本pyteomics.fasta.FASTA类是适用于基于文本的（老款）解析（如图中一样read()上文）。同样，新的二进制模式索引解析器 pyteomics.fasta.IndexedFASTA实现了索引解析器的所有特权。这两个类还具有许多实现标头解析的特定于风味的子类。</p>
+<p>此外，带有风味的索引解析器允许通过提取的ID字段访问蛋白质条目，而常规程序pyteomics.fasta.IndexedFASTA使用完整的描述字符串进行标识：</p>
+<pre><code>In [1]: from pyteomics import fasta
+
+In [2]: db = fasta.IndexedUniProt('sprot_human.fasta') # A SwissProt database
+
+In [3]: len(db['Q8IYH5'].sequence)
+Out[3]: 903
+
+In [4]: db['Q8IYH5'] == db['sp|Q8IYH5|ZZZ3_HUMAN ZZ-type zinc finger-containing protein 3 OS=Homo sapiens GN=ZZZ3 PE=1 SV=1']
+Out[4]: True</code></pre>
+<b>写作</b>
+<p>您还可以使用（description，sequence） 序列创建FASTA文件tuples。</p>
+<pre><code>>>> entries = [('Protein 1', 'PEPTIDE'*1000), ('Protein 2', 'PEPTIDE'*2000)]
+>>> fasta.write(entries, 'target-file.fasta')
+</code></pre>
+<b>诱饵数据库</b>
+<p>另一个常见的任务是生成诱饵数据库。蛋白质组学通过pyteomics.fasta.decoy_db()和 pyteomics.fasta.write_decoy_db()功能实现了这一点。</p>
+<pre><code>>>> fasta.write_decoy_db('mydb.fasta', 'mydb-with-decoy.fasta')</code></pre>
+<p>唯一需要的参数是第一个，指示源数据库。第二个参数是目标文件，默认为系统标准输出。</p>
+<p>如果需要修改单个序列，请使用该 pyteomics.fasta.decoy_sequence()功能。它支持三种模式： 'reverse'，'shuffle'，和'fused'（参见pyteomics.fasta.reverse()， pyteomics.fasta.shuffle()并且pyteomics.fasta.fused_decoy()对于文件）。</p>
+<pre><code>>>> fasta.decoy_sequence('PEPTIDE', 'reverse')
+'EDITPEP'
+>>> fasta.decoy_sequence('PEPTIDE', 'shuffle')
+'TPPIDEE'
+>>> fasta.decoy_sequence('PEPTIDE', 'shuffle')
+'PTIDEPE'</code></pre>
+<b>mzTab</b>
+<p>mzTab是一种基于HUPO-PSI标准化文本的格式，用于描述肽和小分子的鉴定和定量。您可以使用该类将mzTab文件读入一组pandas.DataFrame对象pyteomics.mztab.MzTab 。</p>
+<pre><code>>>> from pyteomics import mztab
+>>> tables = mztab.MzTab("path/to/file.mzTab")
+>>> psms = tables.spectrum_match_table
+>>> # do something with DataFrame</code></pre>
+<a href="#contents">返回目录</a><br>
+<hr class="major"/>
+<h2><a name="xmlgs">XML格式</a></h2>
+<p>XML解析器作为类实现，并提供面向对象的接口。保留功能接口是为了向后兼容，并且包装了实际的基于类的机制。这意味着read()函数返回的阅读器对象具有其他方法。
+<br>
+最重要的方法之一是iterfind()。它允许从XML文件中读取其他信息。</p>
+<b>mzML和mzXML</b>
+<p>mzML和mzXML是基于XML的格式，用于在MS / MS或LC-MS设置上获得的实验数据。Pyteomics为您提供的功能pyteomics.mzml和 pyteomics.mzxml 模块，以便从Python访问这些文件中包含的信息。这两个模块的接口非常相似，本节将使用mzML 进行演示。</p>
+<p>用户可以通过pyteomics.mzml.read()函数或pyteomics.mzml.MzML类遍历文件中包含的MS / MS光谱 。这是输出示例：</p>
+<pre><code>>>> from pyteomics import mzml, auxiliary
+>>> with mzml.read('tests/test.mzML') as reader:
+>>>     auxiliary.print_tree(next(reader))
+count
+index
+highest observed m/z
+ms level
+total ion current
+intensity array
+lowest observed m/z
+defaultArrayLength
+profile spectrum
+MSn spectrum
+positive scan
+base peak intensity
+m/z array
+base peak m/z
+id
+scanList
+ -> count
+ -> scan [list]
+ ->  -> scan start time
+ ->  -> preset scan configuration
+ ->  -> filter string
+ ->  -> instrumentConfigurationRef
+ ->  -> scanWindowList
+ ->  ->  -> count
+ ->  ->  -> scanWindow [list]
+ ->  ->  ->  -> scan window lower limit
+ ->  ->  ->  -> scan window upper limit
+ ->  -> [Thermo Trailer Extra]Monoisotopic M/Z:
+ -> no combination</code></pre>
+<p>此外，pyteomics.mzml.MzML对象还支持使用频谱ID和Indexed Parsers的所有其他功能进行直接索引。
+
+pyteomics.mzml.PreIndexedMzML提供相同的功能，但是它使用文件末尾的字节偏移信息。与其余的函数和类不同，pyteomics.mzml.PreIndexedMzML 在中没有对应项pyteomics.mzxml。</p>
+<b>pepXML</b>
+<p>pepXML 是一种广泛使用的基于XML的肽段识别格式。它包含有关MS数据，所用搜索引擎的参数以及分配的序列的信息。要访问这些数据，请使用 pyteomics.pepxml模块。</p>
+<p>该函数pyteomics.pepxml.read()通过pepXML文件中的Peptide-Spectrum匹配进行迭代，并将其作为自定义字典返回。或者，您可以使用该pyteomics.pepxml.PepXML界面。</p>
+<pre><code>>>> from pyteomics import pepxml, auxiliary
+>>> with pepxml.read('tests/test.pep.xml') as reader:
+>>>     auxiliary.print_tree(next(reader))
+end_scan
+search_hit [list]
+ -> hit_rank
+ -> calc_neutral_pep_mass
+ -> modifications
+ -> modified_peptide
+ -> peptide
+ -> num_matched_ions
+ -> search_score
+ ->  -> deltacn
+ ->  -> spscore
+ ->  -> sprank
+ ->  -> deltacnstar
+ ->  -> xcorr
+ -> num_missed_cleavages
+ -> analysis_result [list]
+ ->  -> peptideprophet_result
+ ->  ->  -> all_ntt_prob
+ ->  ->  -> parameter
+ ->  ->  ->  -> massd
+ ->  ->  ->  -> fval
+ ->  ->  ->  -> nmc
+ ->  ->  ->  -> ntt
+ ->  ->  -> probability
+ ->  -> analysis
+ -> tot_num_ions
+ -> num_tot_proteins
+ -> is_rejected
+ -> proteins [list]
+ ->  -> num_tol_term
+ ->  -> protein
+ ->  -> peptide_next_aa
+ ->  -> protein_descr
+ ->  -> peptide_prev_aa
+ -> massdiff
+index
+assumed_charge
+spectrum
+precursor_neutral_mass
+start_scan</code></pre>
+<p>读入一个pandas.DataFrame</p>
+<p>如果您喜欢使用来处理表格数据pandas，则可以pandas.DataFrames 使用pyteomics.pepxml.DataFrame()函数将pepXML文件直接加载到其中。它可以一次（使用pyteomics.pepxml.chain()）读取多个文件，并返回包含有关搜索结果的基本信息的组合表。此功能需要pandas。</p>
+<b>X！Tandem</b>
+<p>X！Tandem搜索引擎具有自己的输出格式，该格式包含比pepXML更多的信息。Pyteomics在pyteomics.tandem模块中有一个读取器。</p>
+<pre><code>>>> from pyteomics import tandem, auxiliary
+>>> with tandem.read('tests/test.t.xml') as reader:
+...     auxiliary.print_tree(next(reader))
+...
+rt
+support
+ -> fragment ion mass spectrum
+ ->  -> M+H
+ ->  -> note
+ ->  -> charge
+ ->  -> Ydata
+ ->  ->  -> units
+ ->  ->  -> values
+ ->  -> Xdata
+ ->  ->  -> units
+ ->  ->  -> values
+ ->  -> label
+ ->  -> id
+ -> supporting data
+ ->  -> convolution survival function
+ ->  ->  -> Ydata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> Xdata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> label
+ ->  -> b ion histogram
+ ->  ->  -> Ydata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> Xdata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> label
+ ->  -> y ion histogram
+ ->  ->  -> Ydata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> Xdata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> label
+ ->  -> hyperscore expectation function
+ ->  ->  -> a1
+ ->  ->  -> a0
+ ->  ->  -> Ydata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> Xdata
+ ->  ->  ->  -> units
+ ->  ->  ->  -> values
+ ->  ->  -> label
+mh
+maxI
+expect
+sumI
+act
+fI
+z
+id
+protein [list]
+ -> peptide
+ ->  -> pre
+ ->  -> end
+ ->  -> seq
+ ->  -> b_ions
+ ->  -> nextscore
+ ->  -> mh
+ ->  -> y_ions
+ ->  -> start
+ ->  -> hyperscore
+ ->  -> expect
+ ->  -> delta
+ ->  -> id
+ ->  -> post
+ ->  -> missed_cleavages
+ ->  -> b_score
+ ->  -> y_score
+ -> uid
+ -> sumI
+ -> label
+ -> note
+ -> expect
+ -> file
+ ->  -> URL
+ ->  -> type
+ -> id
+</code></pre>
+<p>pyteomics.tandem.read()返回一个pyteomics.tandem.TandemXML实例，也可以直接创建一个 实例。</p>
+<p>读入一个pandas.DataFrame</p>
+<p>您也可以pandas.DataFrames 使用pyteomics.tandem.DataFrame()功能直接从X！Tandem文件中加载数据。它可以一次（使用pyteomics.tandem.chain()）读取多个文件，并返回包含有关搜索结果的基本信息的组合表。当然，此功能需要pandas。</p>
+<b>mzIdentML</b>
+<p>mzIdentML 是由HUPO蛋白质组学标准倡议组织的蛋白质组学信息学工作组开发的标准之一。</p>
+<p>模块接口类似于其他读取器模块的接口。该pyteomics.mzid.read()函数返回一个 pyteomics.mzid.MzIdentML实例，您可以直接直接使用它。</p>
+<pre><code>>>> from pyteomics import mzid, auxiliary
+>>> with mzid.read('tests/test.mzid') as reader:
+>>>     auxiliary.print_tree(next(reader))
+SpectrumIdentificationItem [list]
+ -> PeptideEvidenceRef [list]
+ ->  -> peptideEvidence_ref
+ -> ProteinScape:SequestMetaScore
+ -> chargeState
+ -> rank
+ -> ProteinScape:IntensityCoverage
+ -> calculatedMassToCharge
+ -> peptide_ref
+ -> passThreshold
+ -> experimentalMassToCharge
+ -> id
+spectrumID
+id
+spectraData_ref</code></pre>
+<b>元素ID和引用</b>
+<p>在mzIdentML中，某些元素包含对同一文件中其他元素的引用。引用只是名称以结尾的XML属性，其_ref值是一个ID，与id某个元素的属性值相同。</p>
+<p>解析器可以动态地从这些引用中检索信息，可以通过将其传递retrieve_refs=True给 pyteomics.mzid.MzIdentML.iterfind()方法， pyteomics.mzid.MzIdentML构造函数或来 启用pyteomics.mzid.read()。该pyteomics.mzid.MzIdentML.get_by_id()方法实现了按ID检索数据。或者，MzIdentML可以使用元素ID为 对象本身建立索引：</p>
+<pre><code>>>> from pyteomics import mzid
+>>> m = mzid.MzIdentML('tests/test.mzid')
+>>> m['ipi.HUMAN_decoy']
+{'DatabaseName': 'database IPI_human',
+ 'decoy DB accession regexp': '^SHD',
+ 'decoy DB generation algorithm': 'PeakQuant.DecoyDatabaseBuilder',
+ 'id': 'ipi.HUMAN_decoy',
+ 'location': 'file://www.medizinisches-proteom-center.de/DBServer/ipi.HUMAN/3.15/ipi.HUMAN_decoy.fasta',
+ 'name': ['decoy DB from IPI_human',
+  'DB composition target+decoy',
+  'decoy DB type shuffle'],
+ 'numDatabaseSequences': 58099,
+ 'releaseDate': '2006-02-22T09:30:47Z',
+ 'version': '3.15'}
+>>> m.close()</code></pre>
+<b>注意</b>
+<p>从3.3版开始，pyteomics.mzid.MzIdentML对象为某些元素保留字节偏移量的索引（请参见Indexed Parsers）。使用retrieve_refs=True或通过其ID访问单个元素时，索引有助于实现可接受的性能。</p>
+<p>可以通过传递use_index=False给对象构造函数来禁用此行为 。另一种较旧的机制是元素ID的缓存。要为文件构建缓存，可以在读取数据之前将build_id_cache=True和传递use_index=False 给MzIdentML构造函数或pyteomics.mzid.read()，或调用该pyteomics.mzid.MzIdentML.build_id_cache()方法。</p>
+<p>读入一个pandas.DataFrame</p>
+<p>pyteomics.mzid它还提供了pyteomics.mzid.DataFrame()将一个或多个文件读入单个Pandas的功能DataFrame。此功能需要pandas。</p>
+<b>idXML</b>
+<p>idXML是用于肽段识别的OpenMS格式。在中受支持pyteomics.openms.idxml。它部分支持索引（可以使用retrieve_refs索引和提取蛋白质信息）。</p>
+<p>常规的迭代解析是通过read()或完成的IDXML，pandas.DataFrame 也可以创建它。</p>
+<b>TraML</b>
+<p>TraML也是PSI格式。它存储了大量有关SRM实验的信息。默认情况下pyteomics.traml.TraML，解析器对<Transition>元素进行迭代。像MzIdentML一样，它具有retrieve_refs参数，该参数有助于从文件的其他部分提取信息。 TraML是索引解析器之一。</p>
+<b>FeatureXML</b>
+<p>pyteomics.openms.featurexml为OpenMS框架中使用的.featureXML文件实现一个简单的解析器。用法与其他XML解析模块相同。由于featureXML具有功能ID，因此在索引分析器的众多功能中， 对象还支持直接索引以及迭代：FeatureXML</p>
+<pre><code>>>> from pyteomics.openms import featurexml
+
+>>> # function style, iteration
+... with featurexml.read('tests/test.featureXML') as f:
+...     qual = [feat['overallquality'] for feat in f]
+...
+
+>>> qual # qualities of the two features in the test file
+[0.791454, 0.945634]
+
+>>> # object-oriented style, direct indexing
+>>> f = featurexml.FeatureXML('tests/test.featureXML')
+>>> f['f_189396504510444007']['overallquality']
+0.945634
+>>> f.close()</code></pre>
+<p>一如既往，pyteomics.openms.featurexml.read() 并且pyteomics.openms.featurexml.FeatureXML可以互换。</p>
+<b>TrafoXML</b>
+<p>.trafoXML是另一种基于XML的OpenMS格式。它描述了由RT比对算法产生的转化。该文件基本上包含与原始和转换后的保留时间相对应的一系列（从；到）对：</p>
+<pre><code>>>> from pyteomics.openms import trafoxml
+>>> from_rt, to_rt = [], []
+>>> with trafoxml.read('test/test.trafoXML') as f:
+...    for pair in f:
+...        from_rt.append(pair['from'])
+...        to_rt.append(pair['to'])
+
+>>> # plot the transformation
+>>> import pylab
+>>> pylab.plot(from_rt, to_rt)</code></pre>
+<p>一如既往，pyteomics.openms.trafoxml.read() 并且pyteomics.openms.trafoxml.TrafoXML可以互换。TrafoXML解析器不支持索引，因为这种格式没有特定数据点的ID。</p>
+<a href="#contents">返回目录</a><br>
+<h2><a name="skch">受控词汇表</a></h2>
+<p>受控词汇表 是用于PSI格式的通用注释系统，包括 mzML和mzIdentML。pyteomics.mzml.MzML，pyteomics.traml.TraML并pyteomics.mzid.MzIdentML 保留注释信息。可以使用助手功能来访问它</p>
+<p>pyteomics.auxiliary.cvquery()：</p>
+<pre><code>>>> from pyteomics import auxiliary as aux, mzid, mzml
+>>> f = mzid.MzIdentML('tests/test.mzid')
+>>> s = next(f)
+>>> s
+{'SpectrumIdentificationItem': [{'ProteinScape:SequestMetaScore': 7.59488518903425, 'calculatedMassToCharge': 1507.695, 
+'PeptideEvidenceRef': [{'peptideEvidence_ref': 'PE1_SEQ_spec1_pep1'}], 'chargeState': 1, 'passThreshold': True, 'peptid
+e_ref': 'prot1_pep1', 'rank': 1, 'id': 'SEQ_spec1_pep1', 'ProteinScape:IntensityCoverage': 0.3919545603809718, 'experim
+entalMassToCharge': 1507.696}], 'spectrumID': 'databasekey=1', 'id': 'SEQ_spec1', 'spectraData_ref': 'LCMALDI_spectra'}
+>>> aux.cvquery(s)
+{'MS:1001506': 7.59488518903425, 'MS:1001505': 0.3919545603809718}
+>>> f.close()</code></pre>
+<a href="#contents">返回目录</a><br>
+<h2><a name="syjxq">索引解析器</a></h2>
+<p>大多数解析器实现索引：MGF，mzML，mzXML，FASTA，PEFF，pepXML，mzIdentML，ms1，TraML，featureXML。某些格式没有索引解析器，因为文件中没有唯一的ID字段来标识条目。</p>
+<p>XML解析器类根据格式调用，例如pyteomics.mzml.MzML。实现索引的文本格式解析器用单词“ Indexed”（例如pyteomics.fasta.IndexedFASTA）来代替pyteomics.fasta.FASTA，而不是不实现索引的。这种区别是由于索引解析器需要以二进制模式打开文件这一事实。这可能会影响基于文本的格式的性能，并且并不总是向后兼容（如果处于文本模式，则无法使用先前打开的文件实例化索引的解析器类）。另一方面，XML文件总是以二进制模式打开。因此，XML格式的类没有重复，但是仍可以通过传递use_index=False给类构造函数或read()函数来禁用索引 。</p>
+<b>基本用法</b>
+<p>索引解析器可以使用类名或read()函数实例化：</p>
+<pre><code>In [1]: from pyteomics import mgf
+
+In [2]: f = mgf.IndexedMGF('tests/test.mgf')
+
+In [3]: f
+Out[3]: <pyteomics.mgf.IndexedMGF at 0x7fc983cbaeb8>
+
+In [4]: f.close()
+
+In [5]: f = mgf.read('tests/test.mgf', use_index=True)
+
+In [6]: f
+Out[6]: &ltpyteomics.mgf.IndexedMGF at 0x7fc980c63898&gt</code></pre>
+<p>它们支持直接赋值和迭代或with语法，与较旧的迭代解析器相同。</p>
+<p>解析器对象可用作将条目ID映射到条目的字典，或用作列表：</p>
+<pre><code>In [7]: f['Spectrum 2']
+Out[7]:
+{'params': {'com': 'Based on http://www.matrixscience.com/help/data_file_help.html',
+  'itol': '1',
+  'itolu': 'Da',
+  'mods': 'Carbamidomethyl (C)',
+  'it_mods': 'Oxidation (M)',
+  'mass': 'Monoisotopic',
+  'username': 'Lou Scene',
+  'useremail': 'leu@altered-state.edu',
+  'charge': [2, 3],
+  'title': 'Spectrum 2',
+  'pepmass': (1084.9, 1234.0),
+  'scans': '3',
+  'rtinseconds': 25.0 second},
+ 'm/z array': array([ 345.1,  370.2,  460.2, 1673.3, 1674. , 1675.3]),
+ 'intensity array': array([ 237.,  128.,  108., 1007.,  974.,   79.]),
+ 'charge array': masked_array(data=[3, 2, 1, 1, 1, 1],
+              mask=False,
+        fill_value=0)}
+
+In [8]: f[1]['params']['title'] # positional indexing
+Out[8]: 'Spectrum 2'</code></pre>
+<p>像字典一样，索引解析器也支持成员资格测试和len()：</p>
+<pre><code>In [9]: 'Spectrum 1' in f
+Out[9]: True
+
+In [10]: len(f)
+Out[10]: 2</code></pre>
+<b>丰富索引</b>
+<p>索引解析器还支持位置索引，ID切片和整数。基于ID的片包括两个端点。基于整数的切片将排除间隔的右边缘。使用整数索引时， 也支持step。这是使用两个光谱的测试文件进行索引功能的不言自明的演示：</p>
+<pre><code>In [11]: len(f['Spectrum 1':'Spectrum 2'])
+Out[11]: 2
+
+In [12]: len(f['Spectrum 2':'Spectrum 1'])
+Out[12]: 2
+
+In [13]: len(f[:])
+Out[13]: 2
+
+In [14]: len(f[:1])
+Out[14]: 1
+
+In [15]: len(f[1:0])
+Out[15]: 0
+
+In [16]: len(f[1:0:-1])
+Out[16]: 1
+
+In [17]: len(f[::2])
+Out[17]: 1</code></pre>
+<b>RT-基于索引</b>
+<p>在MGF，mzML和mzXML中，光谱通常是按时间顺序排列的。相应的索引解析器允许按保留时间访问光谱，包括切片：</p>
+<pre><code>In [18]: f = mzxml.MzXML('tests/test.mzXML')
+
+In [19]: spec = f.time[5.5] # get the spectrum closest to this retention time
+
+In [20]: len(f.time[5.5:6.0]) # get spectra from a range
+Out[20]: 2</code></pre>
+<p>使用二进制搜索执行RT查找。检索范围时，将最接近范围起点和终点的光谱用作端点，因此它们可能会稍微超出范围。</p>
+<b>多处理</b>
+<p>索引解析器为多处理提供统一的接口：map()。该方法将用户定义的函数应用于文件中的条目，并在不同的进程中对其进行调用。如果未提供该功能，则解析本身将并行化。根据格式，这可能会加速或减慢整体解析速度。 map()是一个生成器，并在可用时产生项目，而不保留原始订单：</p>
+<pre><code>In [1]: from pyteomics import mzml
+
+In [2]: f = mzml.MzML('tests/test.mzML')
+
+In [3]: for spec in f.map():
+   ...:     print(spec['id'])
+   ...:
+controllerType=0 controllerNumber=1 scan=2
+controllerType=0 controllerNumber=1 scan=1
+
+In [4]: for item in f.map(lambda spec: spec['id']):
+   ...:     print(item)
+   ...:
+controllerType=0 controllerNumber=1 scan=1
+controllerType=0 controllerNumber=1 scan=2</code></pre>
+<b>注意</b>
+<p>要map()与lambda函数一起使用（在某些其他特殊情况下，例如使用预打开的文件对象实例化的解析器），dill则需要使用该软件包。这是因为需要对目标可调用对象和解析器本身进行酸洗才能使多处理工作。</p>
+<p>除了解析器对象，map()还可以在chain()函数和返回的对象上使用iterfind()：</p>
+<pre><code>In [5]: for c in f.iterfind('chromatogram').map():
+   ...:     print(c['id'])
+   ...:
+TIC
+
+In [6]: for spec in mzml.chain('tests/test.mzML', 'tests/test.mzML').map():
+   ...:     print(spec['id'])
+   ...:
+controllerType=0 controllerNumber=1 scan=1
+controllerType=0 controllerNumber=1 scan=2
+controllerType=0 controllerNumber=1 scan=1
+controllerType=0 controllerNumber=1 scan=2</code></pre>
+<a href="#contents">返回目录</a><br>
+<h2><a name="fdr">FDR估算和过滤</a></h2>
+<p>用于读取蛋白质组学模块搜索引擎或后处理输出（tandem，pepxml，mzid，idxml和protxml）暴露类似的功能 is_decoy()，fdr()和filter()。这些功能实现了广泛使用的目标诱骗方法（TDA）来估计错误发现率（FDR）。</p>
+<p>该is_decoy()功能应该确定特定的频谱标识是否来自诱饵数据库。在tandem 和pepxml这是通过检查做，如果蛋白质描述/名称开始具有一定的前缀。在中mzid，使用将这个信息存储在PSM dict中的布尔值。</p>
+<b>警告:</b><p>由于产生pepXML和mzIdentML格式文件的软件种类繁多，因此is_decoy()相应模块中提供的功能可能不适用于您的特定文件。在这种情况下，您将必须参考的来源 pyteomics.pepxml.is_decoy()并 pyteomics.mzid.is_decoy()以类似的方式创建自己的函数。</p>
+<p>该fdr()功能通过计算诱饵匹配数来估计一组PSM中的FDR。由于正在使用该is_decoy()功能，因此上面的警告适用。您可以提供一个自定义函数，以便fdr() 为您的数据工作。fdr()也可以从导入 auxiliary，其中没有默认值is_decoy()。</p>
+<p>该filter()函数的工作方式类似于chain()，但是它不会产生所有PSM，而是将它们过滤到一定水平的FDR。PSM过滤也需要计数诱饵匹配（请参见上文），但这也意味着按某种分数对PSM进行排序。由于上述原因，该分数不能通用，可以指定为用户定义的功能。例如，默认排序键pyteomics.mzid.filter()仅应与使用Mascot创建的mzIdentML文件一起使用。所以再一次</p>
+<b>警告</b><p>默认参数filter()可能不适用于您的文件。</p>
+<p>也有filter.chain()和 filter.chain.from_iterable()。这些不同之处 filter()在于，它们分别对所有文件应用FDR筛选，然后为所有文件的顶部PSM提供读取器，而将 filter()所有PSM汇集在一起​​并应用单个阈值。</p>
+<p>如果要过滤以任意格式表示PSM的列表，则可以使用pyteomics.auxiliary.filter()。PSM列表（或其他可迭代对象）代替文件。其余与其他filter()功能相同 。</p>
+<b>NumPy的和Pandas支持等</b>
+<p>pyteomics.auxiliary.filter()支持结构化numpy数组和 pandas.DataFramesPSM。这使得过滤存储为CSV文件的搜索结果变得容易。</p>
+<p>通常，PSM可以作为迭代器，列表，数组和提供DataFrames，而key和is_decoy参数filter()可以是函数，字符串，列表，数组或迭代器。如果提供了字符串，则将其用作结构化数组中的键DataFrame或的可迭代值dicts。</p>
+<b>FDR校正</b>
+<p>如这篇<a href="http://dx.doi.org/10.1021/acs.jproteome.6b00144">JPR文章</a>所述，基于诱饵计数的过滤具有固有的偏差，尤其是对于小型数据集。所有与TDA相关的功能都有一个可选参数Correction，该参数启用本文中提出的更正过程。</p>
+<a href="#contents">返回目录</a><br>
+<ul class="actions">
+
+	<li><a href="Pyteomics.html" class="button primary">Back</a></li>
+	
+</ul>	
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

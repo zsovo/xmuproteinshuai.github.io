@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Pyteomics</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Pyteomics</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>质量和同位素</center></h1>
+								<p>与质量计算和同位素分布有关的功能被组织到pyteomics.mass模块中。</p>
+								<hr class="major"/>
+								
+<h2>基本质量计算</h2>
+<p>质谱数据分析中最常见的任务是计算有机分子或肽的质量或离子的m / z比。此类任务可以通过pyteomics.mass.calculate_mass()功能执行 。它适用于化学式，modX表示法的多肽序列，预解析的序列和化学组成的词典：</p>						
+<pre><code>>>> from pyteomics import mass
+>>> mass.calculate_mass(formula='H2O')
+18.0105646837036
+
+>>> mass.calculate_mass(formula='C2H5OH')
+46.0418648119876
+
+>>> mass.calculate_mass(composition={'H':2, 'O':1})
+18.0105646837036
+
+>>> mass.calculate_mass(sequence='PEPTIDE')
+799.359964027207
+
+>>> from pyteomics import parser
+>>> ps = parser.parse('PEPTIDE', show_unmodified_termini=True)
+>>> mass.calculate_mass(parsed_sequence=ps)
+799.359964027207</code></pre>
+<b>警告:</b>
+<p>show_unmodified_termini=True如果要使用结果来计算质量，请始终在解析序列时设置。否则，将不考虑末端氢和羟基的质量。</p>
+<hr class="major"/>
+<h2>离子的质荷比</h2>
+<p>pyteomics.mass.calculate_mass()可用于计算肽离子和离子化片段的质荷比。为此，只需提供肽离子化片段的类型及其电荷：</p>
+<pre><code>>>> from pyteomics import mass
+>>> mass.calculate_mass(sequence='PEPTIDE', ion_type='M', charge=2)
+400.6872584803735
+
+>>> mass.calculate_mass(sequence='PEP', ion_type='b', charge=1)
+324.15539725264904
+
+>>> mass.calculate_mass(sequence='TIDE', ion_type='y', charge=1)
+477.219119708098</code></pre>
+<hr class="major"/>
+<h2>修饰肽的质量</h2>
+<p>使用，pyteomics.mass.calculate_mass()您还可以计算修饰肽的质量。为了使该功能识别出修饰的残基，pyteomics.mass.std_aa_comp默认情况下，您需要将有关其元素组成的信息添加到计算中使用的 字典中。</p>
+<pre><code>>>> from pyteomics import mass
+>>> mass.std_aa_comp['pT'] = mass.Composition(
+...    {'C': 4, 'H': 8, 'N': 1, 'O': 5, 'P': 1})
+>>> mass.calculate_mass(sequence='PEPpTIDE')
+879.3262945499629</code></pre>
+<p>要将修饰氨基酸的信息添加到用户定义的aa_comp字典中，可以添加特定修饰残基的组成信息，也可以仅添加修饰信息：</p>	
+<pre><code>>>> from pyteomics import mass
+>>> aa_comp = dict(mass.std_aa_comp)
+>>> aa_comp['p'] = mass.Composition('HPO3')
+>>> mass.calculate_mass('pT', aa_comp=aa_comp)
+199.02457367493957</code></pre>
+<p>在此示例中，我们calculate_mass()使用位置（非关键字）参数（'pT'）进行调用。此功能已在1.2.4版中添加。当您提供非关键字参数时，它将被视为一个序列；如果失败，将被视为公式；万一它也失败了， PyteomicsError将提出一个。请注意，此处将“ pT”视为一个序列，因此在计算组成和质量时会隐含默认的末端基团：</p>
+<pre><code> mass.calculate_mass('pT', aa_comp=aa_comp) == mass.calculate_mass(aa_comp['p']) + mass.calculate_mass(aa_comp['T']) + 
+mass.calculate_mass('H2O')
+True</code></pre>
+您可以为修饰的氨基酸创建特定条目，以覆盖特定残基上的修饰：
+<pre><code>>>> aa_comp['pT'] = mass.Composition({'N': 2})
+>>> mass.Composition('pT', aa_comp=aa_comp)
+{'H': 2, 'O': 1, 'N': 2}
+>>> mass.Composition('pS', aa_comp=aa_comp)
+{'H': 8, 'C': 3, 'N': 1, 'O': 6, 'P': 1}</code></pre>
+<p><a herf='http://www.unimod.org/'>Unimod数据库</a>是有关已知蛋白质修饰的化学成分信息的极佳资源。2.0.3版引入pyteomics.mass.Unimod了可以用作Unimod的Python接口的类：</p>
+<pre><code>>>> db = mass.Unimod()
+>>> aa_comp = dict(mass.std_aa_comp)
+>>> aa_comp['p'] = db.by_title('Phospho')['composition']
+>>> mass.calculate_mass('PEpTIDE', aa_comp=aa_comp)
+782.2735307010443</code></pre>
+<hr class="major"/>
+<h2>化学成分</h2>
+<p>有机质谱法中的一些问题涉及通过加法或减法标准化学“基石”制成的分子。在pyteomics.mass有两种方法可以解决这些问题。</p>
+<p>1. 有一个pyteomics.mass.Composition类旨在存储化学式。pyteomics.mass.Composition对象是可以彼此相加或相减或与整数相乘的字典。</p>
+<pre><code>>>> from pyteomics import mass
+>>> p = mass.Composition(formula='HO3P') # Phosphate group
+Composition({'H': 1, 'O': 3, 'P': 1})
+>>> mass.std_aa_comp['T']
+Composition{'C': 4, 'H': 7, 'N': 1, 'O': 2})
+>>> p + mass.std_aa_comp['T']
+Composition({'C': 4, 'H': 8, 'N': 1, 'O': 5, 'P': 1})</code></pre>
+<p>的值pyteomics.mass.std_aa_comp是 pyteomics.mass.Composition对象。</p>
+<p>2. 接受公式关键字参数的所有函数对公式中相同原子之后的数字求和并相减：</p>
+<pre><code>>>> from pyteomics import mass
+>>> mass.calculate_mass(formula='C2H6') # Ethane
+30.046950192426
+>>> mass.calculate_mass(formula='C2H6H-2') # Ethylene
+28.031300128284002</code></pre>
+<hr class="major"/>
+<h2>更快的质量计算</h2>
+<p>尽管pyteomics.mass.calculate_mass()具有灵活方便的界面，但对于大规模计算而言可能太慢了。此函数有一个优化和简化的版本，名为 pyteomics.mass.fast_mass()。它仅适用于标准单字母IUPAC表示法的未修饰序列。像一样pyteomics.mass.calculate_mass()， 提供离子类型和电荷时pyteomics.mass.fast_mass()可以计算m / z。氨基酸质量可以通过自aa_mass变量指定。</p>
+<pre><code>>>> from pyteomicss import mass
+>>> mass.fast_mass('PEPTIDE')
+799.3599446837036</code></pre>
+<p>如果您需要计算具有修饰和/或非标准末端基团的肽的质量或m / z，但又不想指定所有组成，则也可以使用该pyteomics.mass.fast_mass2()功能。它使用 aa_mass与相同的方式fast_mass()，但具有完整的modX支持：</p>
+<pre><code>>>> mass.fast_mass2('H-PEPTIDE-OH')
+799.3599446837036</code></pre>
+<hr class="major"/>
+<h2>同位素</h2>
+<p>如果未指定，则pyteomics.mass假定这些物质处于纯同位素状态。但是，您可以在化学式的方括号（例如O [18]，N [15]）中指定特定的同位素状态。假设具有未指定同位素状态的元素的最稳定同位素质量和丰度为100％。</p>
+<pre><code>>>> mass.calculate_mass(formula='H[2]2O') # Heavy water
+20.0231181752416
+>>> mass.calculate_mass(formula='H[2]HO') # Semiheavy water
+19.0168414294726</code></pre>
+<p>pyteomics.mass.isotopic_composition_abundance()函数计算分子给定同位素状态的相对丰度。输入可以提供为公式或组合/字典。</p>
+<pre><code>>>> from pyteomics import mass
+>>> mass.isotopic_composition_abundance(formula='H2O') # Water with an unspecified isotopic state
+1.0
+>>> mass.isotopic_composition_abundance(formula='H[2]2O') # Heavy water
+1.3386489999999999e-08
+>>> mass.isotopic_composition_abundance(formula='H[2]H[1]O') # Semiheavy water
+0.0002313727050147582
+>>> mass.isotopic_composition_abundance(composition={'H[2]’: 1, ‘H[1]’: 1, ‘O': 1}) # Semiheavy water
+0.0002313727050147582
+>>> mass.isotopic_composition_abundance(formula='H[2]2O[18]') # Heavy-hydrogen heavy-oxygen water
+2.7461045585999998e-11</code></pre>
+<p>pyteomics.mass.isotopic_composition_abundance()由于模棱两可，您无法在一个公式中混合同一元素的指定状态和未指定状态。</p>
+<pre><code>>>> mass.isotopic_composition_abundance(formula='H[2]HO')
+...
+PyteomicsError: Pyteomics error, message: 'Please specify the isotopic states of all atoms of H or do not specify them at all.'</code></pre>
+<p>最后，您可以找到具有pyteomics.mass.most_probable_isotopic_composition()功能的物质的最可能的同位素组成。该物质被指定为公式，pyteomics.mass.Composition 对象或modX序列字符串。</p>
+<pre><code>>>> from pyteomics import mass
+>>> mass.most_probable_isotopic_composition(formula='H2SO4')
+Composition({'H[1]': 2.0,  'H[2]': 0.0,  'O[16]': 4.0,  'O[17]': 0.0,  'S[32]': 1.0,  'S[33]': 0.0})
+>>> mass.most_probable_isotopic_composition(formula='C300H602')
+Composition({'C[12]': 297.0, 'C[13]': 3.0, 'H[1]': 602.0, 'H[2]': 0.0})
+>>> mass.most_probable_isotopic_composition(sequence='PEPTIDE'*100)
+Composition({'C[12]': 3364.0,  'C[13]': 36.0,  'H[1]': 5102.0,  'H[2]': 0.0, 'N[14]': 698.0,  'N[15]': 2.0,  'O[16]':  398.0,  'O[17]': 3.0})</code></pre>
+<p>有关化学元素，其同位素和相对丰度的信息存储在pyteomics.mass.nist_mass字典中。</p>
+<pre><code>>>> from pyteomics import mass
+>>> print mass.nist_mass['C']
+{0: (12.0, 1.0), 12: (12.0, 0.98938), 13: (13.0033548378, 0.01078), 14: (14.0032419894, 0.0)}</code></pre>
+<p>零键代表未指定的同位素状态。有关同位素的数据存储为元组（准确质量，相对丰度）。</p>
+
+
+
+<ul class="actions">
+
+	<li><a href="Pyteomics.html" class="button primary">Back</a></li>
+	
+</ul>	
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

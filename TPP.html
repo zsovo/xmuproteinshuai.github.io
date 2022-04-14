@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>TPP的安装</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">TPP的安装</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>TPP的安装</center></h1>
+								<hr class="major" />
+								<h2>安装准备</h1>
+								
+
+								<p>
+									本说明描述安装TPP版本5.2.0。
+
+首先是一些一般注意事项
+我们以全新安装Ubuntu 18.04 LTS为起点（LTS表示长期支持，这意味着此版本的Ubuntu将稳定并受支持数年）。
+								</br>
+该说明已在2019年4月在运行Ubuntu 18.04 LTS的新鲜Azure云计算平台实例上进行了测试
+</br>
+我们假设有一个名为“ tpp”的普通用户帐户将用作主帐户。此帐户将需要sudo特权。
+</br>
+此安装假定您要安装到/usr/local/tpp。如果要在其他任何地方安装，请进行相应的更改
+</br>
+此安装假定您将创建数据目录/data。如果要将默认数据位置放置在其他位置，请进行相应更改
+</br>
+此安装假定您将Apache 2.4用作Web服务器
+</br>
+灰色块是直接在外壳中键入的命令。您应该能够一次复制并粘贴一行。
+								</p>
+
+								<hr class="major" />
+
+								<h2>安装</h2>
+								<b>安装必备软件包</b>
+								<p>使用Ubuntu软件包管理器升级所有过时的软件包，然后安装所有依赖项。</p>
+								<pre><code>sudo apt update
+sudo apt --yes upgrade
+sudo apt --yes install subversion
+sudo apt --yes install build-essential
+sudo apt --yes install perl
+sudo apt --yes install zlib1g-dev
+sudo apt --yes install libghc-bzlib-dev
+sudo apt --yes install gnuplot
+sudo apt --yes install unzip
+sudo apt --yes install expat
+sudo apt --yes install libexpat1-dev
+sudo apt --yes install libgd-dev
+sudo apt clean All
+								</code></pre>
+
+
+
+
+							
+								<b>创建一个合适的位置进行编译和安装</b>
+								<p>在本说明中，我们安装在/ usr / local / tpp中，并将默认数据位置设置为/ data。您可能希望将其安装在其他位置，并且应相应地调整配方。这也假设您将使用帐户“ tpp”和组“ tpp”。调整是否要使用其他帐户。</p>
+								<pre><code>sudo mkdir /usr/local/tpp
+sudo chown tpp.tpp /usr/local/tpp
+sudo mkdir /data
+sudo chown tpp.tpp /data</code></pre>
+
+<b>从SourceForge提取TPP 5.2.0源代码</b>
+<p>创建一个〜/ svn目录并提取5.2.0版（或者，您也可以从trunk中提取最新的开发代码：注释掉的命令）。确保此处有6 GB的可用空间！注意：发现TPP 5.2.0的发行版存在一个小错误，该错误阻止在Ubuntu 18.04中的GCC版本下进行干净编译，因此在下面的示例中，我们实际上是从5.2版之后的7909版中提取的。 0版本。在较旧版本的GCC中，库存5.2.0可以正常编译。</p>
+<pre><code>cd
+mkdir svn
+cd ~/svn
+df -h .
+#svn checkout http://svn.code.sf.net/p/sashimi/code/tags/release_5-2-0
+svn checkout -r 7909 http://svn.code.sf.net/p/sashimi/code/trunk/trans_proteomic_pipeline
+#svn checkout http://svn.code.sf.net/p/sashimi/code/trunk/trans_proteomic_pipeline 
+# (do this instead if you want the very latest development version)
+	</code></pre>
+<b>编译源代码</b>
+<p>site.mk使用以下内容创建一个自定义文件。调整INSTALL_DIR和TPP_DATADIR以匹配您在上面创建的位置。除非将TPP URL放在默认URL之外的其他位置，否则请保持TPP_DATAURL和TPP_BASEURL不变。除非您确实要更改它，否则可以将TPP GUI的默认HTTP端口保留为10401。如果要将UI改为使用公共端口80，则可以将10401更改为80。</p>
+<pre><code>cd ~/svn/trans_proteomic_pipeline
+echo "INSTALL_DIR = /usr/local/tpp" > site.mk
+echo "TPP_DATADIR = /data" >> site.mk
+echo "TPP_BASEURL = /tpp" >> site.mk
+echo "TPP_DATAURL = /tpp/data" >> site.mk
+echo "TPP_PORT = 10401" >> site.mk</code></pre>
+编译整个程序包。首先将Boost和ProteoWizard解压。这需要相当长的时间。
+<pre><code>make all
+</code></pre>
+<p>如果以上步骤均正确无误，那么您就可以继续进行了。如果编译由于错误而停止，则需要进行故障排除。据报道，有时仅执行另一个“全部制作”将允许完成编译。首先尝试一下，然后再尝试更复杂的尝试。否则，请尝试确定编译失败的原因。可能您的系统上未安装某些必备软件。如果您无法解决问题，请将操作系统版本，TPP版本和编译错误消息发布到spctools-discuss，有人可以为您提供帮助。
+	接下来，安装它！</p>
+
+<pre><code>make install
+</code></pre>
+<p>接下来，您需要确保所有Perl模块都可用。以下内容适用于我们尝试过的新版Ubuntu 18.04 LTS：
+</p>
+<pre><code>export PERL_MM_USE_DEFAULT=1
+yes | sudo cpan install CGI
+sudo cpan install XML::Parser
+sudo cpan install FindBin::libs
+yes | sudo cpan install JSON</code></pre>
+<p>现在测试以确保安装了所有模块：</p>
+<pre><code>cd /usr/local/tpp/bin
+export PERL5LIB=/usr/local/tpp/lib/perl
+./test_tpi.pl</code></pre>
+<p>如果出现任何“未找到”错误，请返回cpan并安装它们。
+	如果您对使用Web界面不感兴趣，那么您就完成了。TPP高兴。但是，如果要使用GUI Web界面，请继续安装和配置Apache。现在或者在下面进行一些进一步的配置和测试之后，您可能希望删除不再需要的构建目录：
+	</p>
+<pre><code>cd〜/ svn / bin / rm -rf trans_proteomic_pipeline 
+/ bin / rm -rf release_5-2-0</code></pre>
+<b>配置Apache Web服务器</b>
+<p>以下假定您将安装在端口10401上。用10401替换您可能在site.mk文件中上面指定的任何其他端口。
+	注意：如果要在基于云的系统（例如AWS或Azure）上安装TPP，则很可能需要配置网络安全规则（通过云计算控制台/端口）以允许进入端口10401的入站流量，否则尝试将网络浏览器指向它不会产生任何响应。
+
+</p>
+<pre><code>sudo apt --yes install apache2 
+cd / usr / local / tpp / conf 
+
+＃使用以下命令检查您的位置：http://www.whatsmyip.org/，然后相应地配置权限规则
+cat httpd-2.4-tpp.conf | sed's / Require ip 10 / Require ip 174.250.12 /'> httpd-2.4-tpp-1.conf
+
+＃另外，您可以允许来自任何地方的流量。这可能会使您的服务器
+面临一些安全漏洞：cat httpd-2.4-tpp.conf | sed's /＃需要全部授予/需要所有授予/'> httpd-2.4-tpp-1.conf
+	</code></pre>
+<p>接下来设置一些所需的Apache模块并重新启动：</p>	
+<pre><code>sudo a2enmod rewrite
+sudo a2enmod cgid
+sudo service apache2 restart
+</code></pre>
+<p>接下来安装此配置文件。这可能因发行版本而异，但这似乎是在Ubuntu上执行此操作的好方法。</p>
+<pre><code>cd /etc/apache2/conf-available
+sudo cp -p /usr/local/tpp/conf/httpd-2.4-tpp-1.conf httpd-tpp.conf
+cd ../conf-enabled
+sudo ln -s ../conf-available/httpd-tpp.conf
+sudo service apache2 reload</code></pre>
+<p>如果重新加载产生错误，则需要对配置进行故障排除。接下来，设置一些适当的权限以供Web服务器写入。使用第一个命令，验证您的Apache服务器是否以用户www-data的身份运行。如果它以其他用户身份运行，则替换它。</p>
+<pre><code>ps aux | grep apache
+cd /usr/local/tpp
+sudo chown -R www-data.www-data log users 
+cd /data
+sudo chown -R www-data.www-data . 
+</code></pre>
+<p>现在您可以使用了……将您的Web浏览器指向http：// localhost：10401 / tpp / cgi-bin / tpp_gui.pl，或者如果将其安装在其他计算机上，请使用其名称或IP地址，例如http://40.83.177.49:10401/tpp/cgi-bin/tpp_gui.pl。请注意，以上安装假定是在端口10401上安装的。如果您选择了其他端口，请相应地调整上述URL。
+	如果收到响应“内部服务器错误”，则需要查看/var/log/apache2/error.log的内容，看看出了什么问题。如果原因不明显，请将错误日志发布到支持组以寻求帮助。
+	如果您没有响应，即挂起，则可能意味着您的防火墙规则或基于云的入站流量安全规则未配置为允许入站流量到达10401。即，这在新版Ubuntu上不太可能出现问题TPP机器，但可能是您的云提供商或IT提供商安全系统导致的配置问题。</p>
+	<hr class="major" />
+
+	<h2>使用样本数据集测试安装（可选）</h2>
+	
+	<p>如果要通过搜索和PeptideProphet处理来测试安装，请尝试以下方法：</p>
+	<pre><code>Navigate to:
+http://xxx.xxx.xxx.xxx:10401/tpp/cgi-bin/tpp_gui.pl
+- Login with guest and password
+
+## In the Petunia interface in the Web browser:
+[Files]
+[Create new directory] tests
+Go into tests
+
+[TPP Tools] [Fetch Datasets]
+	Choose target directory for downloaded files
+	[Add Files] Go to the top level /local/data
+		- Check box next to tests
+		- (Select)
+	Specify Dataset ID 
+	Paste into URL box: http://www.peptideatlas.org/export/refData/QuickYeastUPS1.zip
+	(Fetch Dataset)
+	Wait a few moments and [Refresh] until the job is done
+	Click on [this directory] and there should only be a subdirectory "QuickYeastUPS1"
+
+[Files]
+- Go to /local/data/params/
+- Check box next to comet.params
+- Click (Copy) button
+- Go to /local/data/tests/QuickYeastUPS1
+- Click (Paste) button
+- On the same line as comet.params, click [Params]
+Make the following changes (they might already be set, but check):
+	peptide_mass_tolerance = 20
+	peptide_mass_units = 2
+	isotope_error = 3
+- (Save Search Parameters File)
+
+[Pipeline: Comet]
+[TPP Tools] [Comet Search]
+	Choose mz[X]ML Input Files
+	[Add Files] Select /local/data/tests/QuickYeastUPS1/UPS1_50000amol_R1.mzML
+	Choose Comet Parameters File
+	[Add Files] Select comet.params
+	Choose a sequence database
+	[Add Files] Select Yeast_UPS_cRAP.fasta
+	[Run Comet Search]
+	Wait a few moments and [Refresh] until the job is done
+
+[TPP Tools] [Analyze Peptides]
+- (Add Files)
+- Check box next to UPS1_50000amol_R1.pep.xml
+- (Select)
+- Under -PEPTIDEPROPHET OPTIONS- check box next to "Use accurate mass binning"
+- Under -IPROPHET OPTIONS- Check box next to "RUN iProphet"
+- Scroll to bottom and (Run XInteract)
+- Wait a few moments and [Refresh] until the job is done
+- Make sure no errors
+- click on [PepXML] link in /local/data/tests/QuickYeastUPS1/interact.ipro.pep.xml [ PepXML ]
+
+- Click on a probability and view the plots
+- Go back to the PepXML Viewer tab
+- Click on a value in the Ions column
+
+[TPP Tools] [Analyze Proteins]
+- (Add Files)
+- Check box next to interact.ipro.pep.xml
+- (Select)
+- Checkmark "Input is from iProphet"
+- (Run ProteinProphet)
+- Wait a few moments and [Refresh] until the job is done
+- click on [ProtXML] link in /local/data/tests/QuickYeastUPS1/interact.prot.xml [ ProtXML ]
+- You should see a list of UPS and yeast proteins detected. Click around to explore
+
+[TPP Tools] [Export mzIdentML]
+- (Add Files)
+- Check box next to interact.prot.xml
+- (Select)
+- Wait a few moments and [Refresh] until the job is done
+</code></pre>										
+
+<ul class="actions">
+
+	<li><a href="SOFTWARE.html" class="button primary">Back</a></li>
+	
+</ul>	
+
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

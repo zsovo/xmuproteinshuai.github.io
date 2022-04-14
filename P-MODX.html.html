@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Pyteomics</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Pyteomics</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>肽序列格式,解析器模块</center></h1>
+						
+								
+<h2>modX</h2>
+<p><b>蛋白质组学</b>使用一种自定义的IUPAC衍生肽序列表示法modX。与IUPAC表示法一样，每个氨基酸残基均以大写字母表示，但可以在其后附加任意数量的小写字母以表示修饰。末端修饰通过连字符（'-'）与主链序列隔开。默认情况下，两个末端均假定为未修饰的，对于N端氢，可以用“ H-”​​明确表示，对于C端羟基，可以用“ -OH”明确表示。</p>						
+<p>“H-HoxMMdaN-OH”是modX中有效序列的示例。有关其他信息，请参见<a herf="https://pyteomics.readthedocs.io/en/latest/api/parser.html"> 解析器-对modX肽序列的操作</a>。请注意，建议在modX序列中包括0或2个终端组。</p>
+<b>操作顺序</b>
+<p>有两个帮助程序功能，用于检查标签是否为modX格式或表示终端修改：<a herf="https://pyteomics.readthedocs.io/en/latest/api/parser.html#pyteomics.parser.is_modX">pyteomics.parser.is_modX()</a>和<a herf="https://pyteomics.readthedocs.io/en/latest/api/parser.html#pyteomics.parser.is_term_mod">pyteomics.parser.is_term_mod()：</a></p>
+<pre><code>>>> parser.is_modX('A')
+True
+>>> parser.is_modX('pT')
+True
+>>> parser.is_modX('pTx')
+False
+>>> parser.is_term_mod('pT')
+False
+>>> parser.is_term_mod('Ac-')
+True</code></pre>
+<p>一个modX序列可翻译成的氨基酸残基的列表<a herf="https://pyteomics.readthedocs.io/en/latest/api/parser.html#pyteomics.parser.parse">pyteomics.parser.parse()功能：</a> </p>
+<pre><code>>>> from pyteomics import parser
+>>> parser.parse('PEPTIDE')
+['P', 'E', 'P', 'T', 'I', 'D', 'E']
+>>> parser.parse('PEPTIDE', show_unmodified_termini=True)
+['H-', 'P', 'E', 'P', 'T', 'I', 'D', 'E', '-OH']
+>>> parser.parse('Ac-PEpTIDE', labels=parser.std_labels+['Ac-', 'pT'])
+['Ac-', 'P', 'E', 'pT', 'I', 'D', 'E']</code></pre>
+<p>在最后一个示例中，我们提供了两个参数，即序列本身和“标签”。后者用于指定氨基酸残基和末端修饰所允许的标记。std_labels是二十种标准氨基酸的预定义标签集合，N端氢为'H-'，C端羟基为'-OH'。在此示例中，我们指定了磷酸化苏氨酸和N末端乙酰化的代码。</p>
+<p>自从2.5版本，指定labels是从来没有强制性。如果未提供此参数，则不会进行检查。但是，最后一个示例离不开labels它，因为它只显示了一个终端组，因此 不推荐使用。</p>
+<p>parse() 有另一种模式，它返回元组：</p>
+<pre><code>>>> parser.parse('Ac-PEpTIDE-OH', split=True)
+[('Ac-', 'P'), ('E',), ('p', 'T'), ('I',), ('D',), ('E',)]</code></pre>
+要么：
+<pre><code>>>> parser.parse('Ac-PEpTIDE-OH', split=True, labels=parser.std_labels+['Ac-', 'p'])
+[('Ac-', 'P'), ('E',), ('p', 'T'), ('I',), ('D',), ('E',)]
+</code></pre>
+<p>另外，请注意我们在此处提供的标签：“ p”而不是“ pT”。这意味着“ p”是适用于任何残基的修饰。
+</br>
+	在modX中，由于修饰，标准len()功能不能用于确定肽的长度。使用pyteomics.parser.length()来代替：</p>
+<pre>>>> from pyteomics import parser
+>>> parser.length('aVRILLaVIGNE')
+10	</pre>
+<p>该pyteomics.parser.amino_acid_composition()函数接受一个序列，并返回一个字典，其中氨基酸标签为键，整数为 值，对应于序列中每个残基出现的次数：</p>
+<pre><code>>>> from pyteomics import parser
+>>> parser.amino_acid_composition('PEPTIDE')
+{'I': 1.0, 'P': 2.0, 'E': 2.0, 'T': 1.0, 'D': 1.0}</code></pre>
+<p>pyteomics.parser.cleave()是进行计算机切割的方法。所需的参数是序列，酶特异性规则和允许的错位切割数目（可选）。cleave()返回 set产物肽的a。</p>
+<pre><code>>>> from pyteomics import parser
+>>> parser.cleave('AKAKBK', parser.expasy_rules['trypsin'], 0)
+{'AK', 'BK'}</code></pre>
+<p>
+	pyteomics.parser.expasy_rules是预先定义dict的最常见蛋白酶的关键规则。
+</br>
+	肽的所有可能的修饰序列可通过以下方法获得 pyteomics.parser.isoforms()：
+</p>
+<pre><code>>>> from pyteomics import parser
+>>> forms = parser.isoforms('PEPTIDE', variable_mods={'p': ['T'], 'ox': ['P']})
+>>> for seq in forms: print seq
+...
+oxPEPpTIDE
+oxPEPTIDE
+oxPEoxPpTIDE
+oxPEoxPTIDE
+PEPpTIDE
+PEPTIDE
+PEoxPpTIDE
+PEoxPTIDE
+</code></pre>
+
+<ul class="actions">
+
+	<li><a href="Pyteomics.html" class="button primary">Back</a></li>
+	
+</ul>	
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

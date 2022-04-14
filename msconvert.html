@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Software</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Identification--msconvert</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>msconvert</center></h1>
+								<p>msconvert是用于在各种文件格式之间进行转换的命令行工具。对于Windows用户，msConvertGUI程序也可用于轻松进行文件转换。
+								</p>
+								<hr class="major" />
+								<ul>
+									<li><b>Read: </b>开放格式，供应商格式（ProteoWizard支持的格式）</li>
+									<li><b>Write: </b>开放格式。另外，msconvert可以对其输入文件执行各种筛选器和转换（在此处列出）。</li>
+								
+								</ul>
+
+								<h4>Examples:</h4>
+								<ul>
+									<li><b>msconvert: </b>打印用法信息，如下所示</li>
+									<li><b>msconvert --help: </b>打印用法信息，以及有关过滤器的更多详细信息</li>
+									<li><b>msconvert data.RAW: </b>在当前目录中创建data.mzML</li>
+									<li><b>msconvert data.RAW --mzXML: </b>在当前目录中创建data.mzXML</li>
+									<li><b>msconvert *.RAW -o my_output_dir: </b>将所有与* .RAW匹配的文件转换为mzML，输出在my_output_dir中创建的文件</li>
+									<li><b>msconvert data.RAW --zlib --filter "peakPicking true [2,3]": </b>对二进制数据数组使用zlib压缩，对[2,3]中的msLevel使用供应商质心</li>
+									<li><b>msconvert data.RAW --filter "msLevel 2": </b>仅写入ms2扫描</li>
+									<li><b>msconvert data.RAW --filter "msLevel 2-": </b>仅写入ms2和更高版本的扫描</li>
+									<li><b>msconvert data.RAW --filter "zeroSamples removeExtra": </b>忽略不与非零样本相邻的零值样本</li>
+									<li><b>msconvert data.RAW --32 --zlib --filter "peakPicking true 1-" --filter "zeroSamples removeExtra": </b>创建较小文件的各种技巧，非常类似于旧的ReAdW转换器程序</li>
+								</ul>
+								
+								<h4>不带任何参数运行msconvert会产生以下有用的输出： </h4>
+								<pre><code>Usage: msconvert [options] [filemasks]
+
+Convert mass spec data file formats.
+
+Return value: # of failed files.
+
+Options:
+	-f [ --filelist ] arg : specify text file containing filenames
+	-o [ --outdir ] arg (=.) : set output directory ('-' for stdout) [.]
+	-c [ --config ] arg : configuration file (optionName=value)
+	--outfile arg : Override the name of output file.
+	-e [ --ext ] arg : set extension for output files
+	[mzML|mzXML|mgf|txt|mz5]
+	--mzML : write mzML format [default]
+	--mzXML : write mzXML format
+	--mz5 : write mz5 format
+	--mgf : write Mascot generic format
+	--text : write ProteoWizard internal text format
+	--ms1 : write MS1 format
+	--cms1 : write CMS1 format
+	--ms2 : write MS2 format
+	--cms2 : write CMS2 format
+	-v [ --verbose ] : display detailed progress information
+	--64 : set default binary encoding to 64-bit precision
+	[default]
+	--32 : set default binary encoding to 32-bit precision
+	--mz64 : encode m/z values in 64-bit precision [default]
+	--mz32 : encode m/z values in 32-bit precision
+	--inten64 : encode intensity values in 64-bit precision
+	--inten32 : encode intensity values in 32-bit precision
+	[default]
+	--noindex : do not write index
+	-i [ --contactInfo ] arg : filename for contact info
+	-z [ --zlib ] : use zlib compression for binary data
+	--numpressLinear [toler] : use numpress linear prediction lossy compression for binary mz and rt data (relative error guaranteed less
+	 than given tolerance, default is 2e-009)
+	--numpressPic : use numpress positive integer lossy compression for binary intensities (maximum 0.5 absolute error guaranteed)
+	--numpressSlof [toler] : use numpress short logged float lossy compression for binary intensities (relative error guaranteed less than
+	 given tolerance, default is 0.0002)
+	-n [ --numpressAll] : same as --numpressLinear --numpressSlof (see https://github.com/fickludd/ms-numpress for more info)
+	--numpressLinearAbsTol : desired absolute tolerance for linear numpress prediction (e.g. use 1e-4 for a mass accuracy of 0.2 ppm at 
+	500 m/z, default uses -1.0 for maximal accuracy). Note: setting this value may substantially reduce file size, this overrides 
+	relative accuracy tolerance.
+	Numpress may be used at the same time as zlib (-z) for best compression, though some older mzML parsers may not handle this properly.
+	-g [ --gzip ] : gzip entire output file (adds .gz to filename)
+	--filter arg : add a spectrum list filter
+	--merge : create a single output file from multiple input
+	files by merging file-level metadata and
+	concatenating spectrum lists
+	--simAsSpectra : write selected ion monitoring as spectra, not
+	chromatograms
+	--srmAsSpectra : write selected reaction monitoring as spectra, not
+	chromatograms
+	--combineIonMobilitySpectra : write all drift bins/scans in a frame/block as one spectrum instead of individual spectra
+	--acceptZeroLengthSpectra : some vendor readers have an efficient way of filtering out empty spectra, but it takes more time to open 
+	the file
+	--ignoreUnknownInstrumentError : if true, if an instrument cannot be determined from a vendor file, it will not be an error
+	--help : show this message, with extra detail on filter options
+
+FILTER OPTIONS:
+run this command with --help to see more detail
+index <index_value_set>
+msLevel <mslevels>
+chargeState <charge_states>
+precursorRecalculation
+mzRefiner input1.pepXML input2.mzid [msLevels=<1->] [thresholdScore=<CV_Score_Name>] [thresholdValue=<floatset>] [thresholdStep=<float>] 
+	[maxSteps=<count>]
+lockmassRefiner mz=<real> mzNegIons=<real (mz)> tol=<real (1.0 Daltons)>
+precursorRefine
+peakPicking [<PickerType> [snr=<minimum signal-to-noise ratio>] [peakSpace=<minimum peak spacing>] [msLevel=<ms_levels>]]
+scanNumber <scan_numbers>
+scanEvent <scan_event_set>
+scanTime <scan_time_range>
+sortByScanTime
+stripIT
+metadataFixer
+titleMaker <format_string>
+threshold <type> <threshold> <orientation> [<mslevels>]
+mzWindow <mzrange>
+mzPrecursors <precursor_mz_list>
+defaultArrayLength <peak_count_range>
+zeroSamples <mode> [<MS_levels>]
+mzPresent <tolerance> <type> <threshold> <orientation> <mz_list> [<include_or_exclude>]
+scanSumming [precursorTol=<precursor tolerance>] [scanTimeTol=<scan time tolerance>]
+MS2Denoise [<peaks_in_window> [<window_width_Da> [multicharge_fragment_relaxation]]]
+MS2Deisotope [hi_res [mzTol=<mzTol>]] [Poisson [minCharge=<minCharge>] [maxCharge=<maxCharge>]]
+ETDFilter [<removePrecursor> [<removeChargeReduced> [<removeNeutralLoss> [<blanketRemoval> [<matchingTolerance> ]]]]]
+chargeStatePredictor [overrideExistingCharge=<true|false (false)>] [maxMultipleCharge=<int (3)>] [minMultipleCharge=<int (2)>] 
+	[singleChargeFractionTIC=<real (0.9)>] [maxKnownCharge=<int (0)>] [makeMS2=<true|false (false)>]
+turbocharger [minCharge=<minCharge>] [maxCharge=<maxCharge>] [precursorsBefore=<before>] [precursorsAfter=<after>] 
+	[halfIsoWidth=<half-width of isolation window>] [defaultMinCharge=<defaultMinCharge>] [defaultMaxCharge=<defaultMaxCharge>] 
+		[useVendorPeaks=<useVendorPeaks>]
+activation <precursor_activation_type>
+analyzer <analyzer>
+analyzerType <analyzer>
+polarity <polarity>
+
+
+Examples:
+
+# convert data.RAW to data.mzML
+msconvert data.RAW
+
+# convert data.RAW to data.mzXML
+msconvert data.RAW --mzXML
+
+# put output file in my_output_dir
+msconvert data.RAW -o my_output_dir
+
+# extract scan indices 5...10 and 20...25
+msconvert data.RAW --filter "index [5,10] [20,25]"
+
+# extract MS1 scans only
+msconvert data.RAW --filter "msLevel 1"
+
+# extract MS2 and MS3 scans only
+msconvert data.RAW --filter "msLevel 2-3"
+
+# extract MSn scans for n>1
+msconvert data.RAW --filter "msLevel 2-"
+
+# apply ETD precursor mass filter
+msconvert data.RAW --filter ETDFilter
+
+# remove non-flanking zero value samples
+msconvert data.RAW --filter "zeroSamples removeExtra"
+
+# remove non-flanking zero value samples in MS2 and MS3 only
+msconvert data.RAW --filter "zeroSamples removeExtra 2 3"
+
+# add missing zero value samples (with 5 flanking zeros) in MS2 and MS3 only
+msconvert data.RAW --filter "zeroSamples addMissing=5 2 3"
+
+# keep only HCD spectra from a decision tree data file
+msconvert data.RAW --filter "activation HCD"
+
+# keep the top 42 peaks or samples (depending on whether spectra are centroid or profile):
+msconvert data.RAW --filter "threshold count 42 most-intense"
+
+# multiple filters: select scan numbers and recalculate precursors
+msconvert data.RAW --filter "scanNumber [500,1000]" --filter "precursorRecalculation"
+
+# multiple filters: apply peak picking and then keep the bottom 100 peaks:
+msconvert data.RAW --filter "peakPicking true 1-" --filter "threshold count 100 least-intense"
+
+# multiple filters: apply peak picking and then keep all peaks that are at least 50% of the intensity of the base peak:
+msconvert data.RAW --filter "peakPicking true 1-" --filter "threshold bpi-relative .5 most-intense"
+
+# use a configuration file
+msconvert data.RAW -c config.txt
+
+# example configuration file
+mzXML=true
+zlib=true
+filter="index [3,7]"
+filter="precursorRecalculation"
+
+
+Questions, comments, and bug reports:
+https:/github.com/ProteoWizard/pwiz/issues
+support@proteowizard.org
+
+ProteoWizard release: 3.0.9134 (2015-11-11)
+ProteoWizard MSData: 3.0.9134 (2015-11-11)
+ProteoWizard Analysis: 3.0.9098 (2015-11-1)
+Build date: Nov 13 2015 11:57:52
+</code></pre>
+
+<ul class="actions">
+
+	<li><a href="SOFTWARE.html" class="button primary">Back</a></li>
+	
+</ul>					
+
+							
+							 </section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

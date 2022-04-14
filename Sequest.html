@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Software</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Identification--Sequest</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>Sequest</center></h1>
+								<p>
+									Sequest是用于蛋白质鉴定的串联质谱数据分析程序。Sequest鉴定了从蛋白质序列数据库中生成的肽序列的串联质谱图。
+									该工具在蛋白质组学方面最有用。从复杂的蛋白质混合物开始，此策略通常使用胰蛋白酶消化蛋白质。这些肽在到达串联质谱仪的途中通过液相色谱法分离。然后，质谱仪分离特定肽的离子，使其经受碰撞诱导的离解，并在串联质谱中记录产生的片段。重复此过程数小时，将产生数千个串联质谱。识别此类数据收集需要自动化，而Sequest是第一个满足该需求的软件。
+
+								</br>Sequest分别识别每个串联质谱。该软件从数据库中评估蛋白质序列，以计算每种蛋白质可能产生的多肽列表。从质谱图中可以知道该肽的完整质量，Sequest使用此信息来确定候选肽序列的集合，可以通过仅包含观察到的肽离子质量附近的那些序列来有意义地与光谱进行比较。对于每个候选肽，Sequest计划一个理论串联质谱，并且Sequest通过使用互相关将这些理论质谱与观察到的串联质谱进行比较。据报道，具有最佳匹配理论串联质谱的候选序列是对该质谱的最佳识别。
+								</p>
+								<hr class="major" />
+								<h2>在单台机器上进行SEQUEST测试</h1>
+								
+
+								<p>
+									该测试是您已经通过的两个测试的组合：ssh your_machine which unify_sequest。这是计算机上的样子：
+									<pre><code>[cociorva@grunt ~]$ ssh grunt which unify_sequest
+/usr/bin/unify_sequest
+									</code></pre>
+									故障排除:<br>
+									如果提示您输入密码，则意味着ssh配置步骤未正确完成，应重复进行。返回并确保您首先开始工作。
+如果收到...错误类型... no unify_sequest，则表示您没有将文件放在正确的用户路径中。如果没有管理员访问权限，那么用户路径配置的确可能会很棘手，并且可能涉及编辑.bashrc或.cshrc之类的文件。确保您向系统管理员寻求帮助。
+								</p>
+								<h2>准备Fasta数据库文件夹</h2>
+								<p>
+									制作一个用于存储fasta数据库的文件夹，然后在其中复制文件Pombe030305_17PM_reverse.fasta。例如，我制作了一个文件夹/ home / cociorva / dbase来存储我的数据库：
+									<pre><code>[cociorva@grunt ~]$ ls -l /home/cociorva/dbase
+total 5596
+-rw-r--r--  1 cociorva yates 5712604 Feb 26 18:44 Pombe030305_17PM_reverse.fasta 
+									</code></pre>
+									
+								</p>
+								<h2>准备文件夹以进行测试运行</h2>
+								<p>
+									创建一个文件夹，您将在其中运行此测试数据。将文件17 PM-OrbiLTQ.ms2，cluster.txt和sequest.params文件复制到此文件夹中。例如，我制作了一个名为/ home / cociorva / SEQUEST_test的文件夹：
+									<pre><code>[cociorva@grunt ~]$ ls -l /home/cociorva/SEQUEST_test
+total 79052
+-rw-r--r--  1 cociorva yates 80835254 Feb 26 18:07 17PM-Orbi.ms2
+-rw-r--r--  1 cociorva yates        6 Feb 26 18:59 cluster.txt
+-rw-r--r--  1 cociorva yates     5525 Feb 26 18:54 sequest.params										
+									</code></pre>
+									
+								</p>
+								<h2>编辑sequest.params文件</h2>
+								<p>
+									使用您喜欢的文本编辑器，打开sequest.params文件并更改database_name行（在示例中，该行从顶部的第4行）以反映fasta数据库的实际位置。在我的情况下，sequest.params文件的顶部是这样的：
+									<pre><code># comment lines begin with a '#' in the first position
+
+[SEQUEST]
+database_name = /home/cociorva/dbase/Pombe030305_17PM_reverse.fasta
+ppm_peptide_mass_tolerance = 50.000
+isotopes = 1                           ; 0=search only one peak, 1=search isotopes								
+									</code></pre>
+									
+								</p>
+								<h2>编辑cluster.txt文件</h2>
+								<p>
+									该文件的格式非常简单：它在一行中列出了SEQUEST使用的所有计算机。如果一台机器有多个处理器或多个内核，则可以列出多次（我们将在后面介绍）。在这一阶段，您的cluster.txt文件只需要一行，列出了your_machine。我的文件如下所示：
+									<pre><code>grunt</code></pre>
+									注意：此文件的名称（在我们的示例中为cluster.txt）无关紧要。您可以选择任意命名，只要在运行SEQUEST时指定它即可（见下文）。同样，创建并保存几个包含不同计算机列表的群集文件可能是一个好主意。例如，您可能有一个small_cluster.txt文件，其中仅列出了几台计算机，以及一个big_cluster.txt文件，其中列出了多台计算机。这样，您可以在机器的各种子集上启动SEQUEST，而无需始终编辑同一文件。
+									
+								</p>
+								<h2>执行SEQUEST程序</h2>
+								<p>
+									最后，您准备好了！键入run_ms -f cluster.txt 17 PM-Orbi.ms2并按Enter。这是我得到的：
+									<pre><code>[cociorva@grunt SEQUEST_test]$ run_ms -f cluster.txt 17PM-Orbi.ms2
+Starting Search for 17PM-Orbi.ms2
+Number of Spectra 13356
+Number of Spectra 13356
+Reading in sequest.params file
+machines = grunt
+A total of 1 computers in the cluster
+Starting the Search
+17PM-Orbi.ms2: 0 (%0.0) dtas Sent for Search,   1 to grunt
+stat = 0
+17PM-Orbi.ms2: 1 (%0.0) dtas Sent for Search,   2 to grunt
+stat = 0
+17PM-Orbi.ms2: 2 (%0.0) dtas Sent for Search,   3 to grunt
+stat = 0
+17PM-Orbi.ms2: 3 (%0.0) dtas Sent for Search,   4 to grunt
+stat = 0
+17PM-Orbi.ms2: 4 (%0.0) dtas Sent for Search,   5 to grunt
+stat = 0
+17PM-Orbi.ms2: 5 (%0.0) dtas Sent for Search,   6 to grunt
+										...		
+									</code></pre>
+									您在屏幕上看到的只是该程序的日志，您应特别注意stat = 0行。如果该数字不为零，则表示程序中存在错误。到目前为止，所有繁琐的测试和配置步骤均旨在防止这种情况的发生，并希望它们能够很好地工作。
+									程序的输出进入17 PM-Orbi.sqt文件。该文件随着程序的运行而增长，并且在程序完成后将包含完整的SEQUEST搜索结果。您可以让程序完成，但是在一台计算机上完成它可能会花费很长时间。要停止它，请随时按Ctrl-C。如果停止该程序，则17 PM-Orbi.sqt文件将仅包含完成搜索的质谱图的结果。	
+								</p>
+								<ul class="actions">
+
+									<li><a href="SOFTWARE.html" class="button primary">Back</a></li>
+									
+								</ul>	
+
+
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

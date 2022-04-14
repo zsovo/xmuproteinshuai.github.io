@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Mobi-DIK</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Mobi-DIK</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>Mobi-DIK</center></h1>
+								<p>
+									Mobi-DIK（离子淌度DIA工具套件）是用于分析与离子淌度耦合的DIA数据的软件包。Mobi-DIK是OpenSWATH工作流程的扩展 ，它针对离子迁移率分析以及diapysef（用于转换和分析diaPASEF数据的Python软件包）进行了优化。
+								</p>
+								<hr class="major" />
+								<h2>安装</h2>
+								
+
+								<p>
+									Mobi-DIK已完全集成到OpenSWATH工作流程的工具中。			</p>
+								<hr class="major" />
+								<h2>说明</h2>
+								<b>
+									转换次数
+								</b>
+							
+								<p>
+									以sqlite格式diapysef获取原始tdf文件，可以将原始文件转换为标准格式mzML。MOBI-DIK数据转换详细显示了数据转换的功能。不同的命令可以用于数据转换：
+								</p>
+								<pre><code>convertTDFtoMzML.py --help
+convertTDFtoMzML.py -a=input.d -o=output.mzML</code></pre>
+<b>library的产生</b>
+<p>diapysef将MaxQuant库输出重新格式化为OpenSwath可读格式。它可以分别对保留时间和离子迁移率漂移时间执行线性和非线性对齐。</p>
+<p>对于大多数独立于数据的采集（DIA）分析，前驱物，肽和蛋白质的鉴定都需要一个有良好表示的光谱库。当前，我们diapysef 直接使用MaxQuant对多个DDA-PASEF运行的分析来支持使用包生成库。diapysef在继续操作之前，请确保 已安装。
+</br>
+	生成光谱库的一般步骤是（i）在MQ输出中注释离子迁移率值;（ii）针对iRT肽校正保留时间和离子迁移率值;（iii）将其格式化为OpenSwath可读格式;（iv ）使用OpenSwath生成频谱库格式（.TraML，.pqp，.tsv）。</p>
+<b>注释离子淌度</b>	
+<p>生成库需要来自MaxQuant的DDA输出文件以及原始DDA PASEF文件之一。</p>
+<ul>
+	<li>msms.txt</li>
+	<li>allPeptides.txt</li>
+	<li>idence.txt</li>
+	<li>.d文件夹（DDA PASEF）</li>
+</ul>
+<p>然后可以调用库生成脚本：</p>
+<pre><code>python create_library.py --pasefdata data.d --mqout path/to/maxquant_data --irt irt_file.tsv</code></pre>
+
+<p>有关脚本的详细信息和选项，只需键入：</p>
+<pre><code>python create_library.py --help</code></pre>
+<b>生成测定库</b>
+<p>在使用diapysef生成光谱库之后，tsv可以将文件导入到<a herf="http://openswath.org/en/latest/docs/pqp.html">肽查询参数生成中</a>，OpenSwathAssayGenerator并OpenSwathDecoyGenerator如<a herf="http://openswath.org/en/latest/docs/pqp.html">《肽查询参数生成》</a>中所述</p>
+	<b>其他功能</b>
+可以通过以下方式获取数据采集窗口方案get_dia_windows.py：
+<pre><code>get_dia_windows.py pasef_data_dir.d/ output_scheme.csv</code></pre>
+<p>可以使用m / z隔离窗口，碰撞能量和离子迁移率隔离窗口等编写csv文件。
+</br>
+	该方案的输出还可以绘制在mz和im尺寸的MaxQuant输出上：</p>
+<pre><code>plot_dia_windows.py output_scheme.csv MQ_output_all_peptides.csv</code></pre>
+
+<ul class="actions">
+
+	<li><a href="SOFTWARE2.html" class="button primary">Back</a></li>
+	
+</ul>				
+
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

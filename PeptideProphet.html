@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Software</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Identification--PeptideProphet</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>PeptideProphet</center></h1>
+								<p>
+								PeptideProphet自动由SSEQUEST等数据库搜索程序对MS/MS光谱的肽分配。
+								</p>
+								<hr class="major" />
+								<ul>
+								
+								<h2><center>主要功能</center></h2>
+								<p>
+								从每个集中的数据，它学习正确和不正确的肽中搜索分数和肽属性的分布，并使用这些分布来计算每个结果的正确概率。
+								相关的肽特性包括与酶裂解相容的乙基数（用于无约束的搜索）、错过的酶裂解数量、前体离子的质量差异、轻或重半胱氨酸的存在（用于 ICAT 实验）以及存在 N-糖基化图案（用于 N-糖基化捕获实验）。
+								肽先知可用作第二步，在分析从任何类型的质谱仪生成的MS/MS光谱，并使用任意数量的数据库搜索程序分配肽。<br>
+								该软件是在西雅图的系统生物学研究所开发的。通常，PeptideProphet分析后是ProteinProphet，它根据相应的蛋白质对肽进行组团，以计算这些蛋白质存在于原始样本中的概率。
+								</p>
+								<h4><center>PeptideProphet 是 ISB 开发的开源 LC/MS/MS 分析管道的组成部分之一</center></h4>
+								<p>
+								其他组件包括：<br>
+								mzXML 转换器和解析器，摘要 HTML 创建者，交互、XPRESS 定量和 ASAPRatio定量：http://sf.net/projects/sashimi/<br>
+								ProteinProphet：http://sf.net/projects/proteinprophet/<br>
+								</p>
+								<hr class="major" />
+								<ul>
+								
+							<section>
+								<h2><center>软件使用</center></h2>
+								<h4><center>评分器</center></h4>
+								<p>
+								在 SEQUEST 摘要 html 文件中读取并提取相关的数据库搜索分数和肽属性。
+								接下来，使用搜索分数，计算每个搜索结果的鉴别分数（fval）。将输出写入 .esi 文件。<br>
+								此程序已适应 Mascot 结果（转换为摘要 html 格式），并且必须同样适用于分析其他数据库搜索程序。
+								</p>
+								<h4><center>PeptideProphet</center></h4>
+								<p>
+								读取包含搜索结果鉴别分数 （fval） 和相关肽属性的 .esi 文件，并迭代地了解这些值在正确和不正确的搜索结果中的分布。
+								计算数据集中每个搜索结果都正确的概率，并将这些结果写入 .prob 文件
+								</p>
+								<h4><center>PeptideProphet输出</center></h4>
+								<p>
+								读取摘要 html 文件和 .prob 文件，将写入计算概率作为指定的输出 html 文件的额外第一列
+								</p>
+								<hr class="major" />
+								<ul>
+								<h2><center>CGI程序</center></h2>
+								<h4><center>plotmodel.cgi</center></h4>
+								<p>
+								通过单击特定搜索结果的概率链接触发，输出到肽预言分析。
+								显示搜索结果鉴别分数 （fval） 和整个数据集中正确和不正确的搜索结果之间的相关肽属性的分布。
+								叠加在歧视分数分布上是特定搜索结果条目的值。
+								</p>
+								<ul class="actions">
+
+									<li><a href="SOFTWARE.html" class="button primary">Back</a></li>
+									
+								</ul>	
+
+							
+							 </section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

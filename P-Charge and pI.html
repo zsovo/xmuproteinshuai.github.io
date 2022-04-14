@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Pyteomics</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">Pyteomics</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>电荷和pI</center></h1>
+								<p>多肽的电化学性质可以通过pyteomics.electrochem模块进行评估 。现在，它可以计算：</p>
+								<ul><li>在给定的pH下多肽分子的电荷；</li><li>等电点。</li></ul>
+								<p>该pyteomics.electrochem模块基于Henderson-Hasselbalch方程。</p>
+								<hr class="major"/>
+								
+<h2>例子</h2>
+<p>模块中的两个功能均接受modX序列，已解析序列或具有氨基酸组成的dict形式的输入。</p>
+<pre><code>>>> from pyteomics import electrochem
+>>> electrochem.charge('PEPTIDE', 7)
+-2.9980189709606284
+>>> from pyteomics import parser
+>>> parsed_seq = parser.parse('PEPTIDE', show_unmodified_termini=True)
+>>> electrochem.charge(parsed_seq, 7)
+-2.9980189709606284
+>>> aa_composition = parser.amino_acid_composition('PEPTIDE', show_unmodified_termini=True)
+>>> electrochem.charge(aa_composition, 7)
+-2.9980189709606284
+>>> electrochem.pI('PEPTIDE')
+2.87451171875
+>>> electrochem.pI('PEPTIDE', precision_pI=0.0001)
+2.876354217529297</code></pre>
+<hr class="major"/>
+<h2>定制</h2>
+<p>各个氨基酸的pK a s以以下格式存储在字典中：{ modX标签：（pKa，charge）}。该模块包含发表在科学期刊上的几个数据集： <a href='https://pyteomics.readthedocs.io/en/latest/api/electrochem.html#pyteomics.electrochem.pK_lehninger'>pyteomics.electrochem.pK_lehninger</a>（默认情况下使用） <a href='https://pyteomics.readthedocs.io/en/latest/api/electrochem.html#pyteomics.electrochem.pK_sillero'>pyteomics.electrochem.pK_sillero</a>， <a href='https://pyteomics.readthedocs.io/en/latest/api/electrochem.html#pyteomics.electrochem.pK_dawson'>pyteomics.electrochem.pK_dawson</a>， <a href='pyteomics.electrochem.pK_dawson'>pyteomics.electrochem.pK_rodwell</a>。</p>
+<ul class="actions">
+
+	<li><a href="Pyteomics.html" class="button primary">Back</a></li>
+	
+</ul>	
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

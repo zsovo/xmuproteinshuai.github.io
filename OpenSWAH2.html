@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>OpenSWAH的安装</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">OpenSWAH的安装</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>在Windows上安装</center></h1>
+								<hr class="major" />
+									
+									<p>本文档说明了从其源代码构建OpenMS的安装过程。如果只想使用OpenMS蛋白质组学管道（TOPP），则强烈建议您下载Windows二进制安装程序，而不是从源代码构建OpenMS。</p>
+									<p><b>本教程的符号</b></br>
+										用户需要选择<>中的字符串，例如<xmp><path_to_contrib></xmp>，这意味着该字符串应替换为用户放置OpenMS contrib软件包的路径。通常，所有需要执行此命令的命令都带有示例，因此请不要担心。
+										</br>每当将路径添加到Windows PATH环境变量时，每个已打开的命令提示符都不会刷新。您将需要打开一个新文件。
+									</p>
+								<hr class="major"/>
+								<h2>环境搭建</h2>
+								<b>先决条件（软件）</b>
+								<ul>
+									<li><b>Visual Studio：</b>支持VS2015及更高版本，但我们完全推荐VS2019（更快的编译，更快的可执行文件，并且它修复了OpenMP多线程中的错误）。我们测试了VSE2015 Update 3，C++ Express版本也应该可以正常工作。MinGW
+										（基于g ++的编译器）和VS2013（由于缺少C11支持）不支持。不要使用启用了MinGW的外壳，因为CMake会感到困惑！请使用您要用来构建的Visual Studio版本的命令提示符。接近VS工具链的其他编译器也可以工作，但未经测试。</li>
+									<li><b>CMake: </b>至少安装了CMake 3.1或更高版本（请参阅http://www.cmake.org）。要使用我们的contrib软件包进行构建，请使用3.14+。CMake的生成器（-G标志）也必须支持您的Visual Studio版本。如果没有，请升级CMake。</li>
+									<li><b>7-Zip: </b>要在contrib的子模块中提取存档7-Zip（请参阅http://www.7-zip.org/），请
+										在 "C:/Program Files/7-Zip/" and "C:/Programme/7-Zip/"。确保它位于这两个位置中，或者将安装目录添加到PATH中。</li>
+								</ul>
+								<hr class="major"/>
+								<h2>安装所需的依赖库</h2>
+								<p>OpenMS依赖于其他几个库。在Windows系统上，这些通常不存在。</p>
+								<p>为了简化其余所需库的安装，我们组成了一个“ contrib-package”，其中包含库Boost，Eigen，sqlite3，CoinMP，WildMagic，libSVM，libHDF5，SeqAn，glpk，zlib，libbz2和Xerces-C。与手动安装相比，该contrib包具有多个优点
+									。<b>如果不使用contrib程序包，这些错误可能是致命的。</b>
+								</p>
+								<b>下载：</b>
+								<p>如果您打算使用OpenMS的开发版本，请克隆OpenMS并使用以下命令检出可选的contrib子模块</p>
+<pre><code>git clone https://github.com/OpenMS/OpenMS
+git submodule update --init contrib</code></pre>
+<p>获取最新的潜在不稳定版本。如果要使用OpenMS的发行版，请在GitHub（https://github.com/OpenMS/contrib/releases）上使用相应的带有发行标签的版本，或从.tar.gz下载contrib源以获取较旧的发行版。
+</p>
+
+<b>安装：</b>
+<p>获得contrib程序包的源代码后，请按照以下步骤操作：
+</br>1. 打开VisualStudio开发人员命令提示符（默认情况下，您将获得您最可能不希望使用的32位环境；如果要使用64位应用程序，请使用x64环境！）</br>
+<b>注意:</b>
+<ul>
+	<li>VS2015没有为64位命令提示符提供命令行快捷方式。到"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64得到一个！</li>
+	<li>VS2017有一个（隐藏的）批处理文件，可以正确配置您的环境以进行64位构建。它应该位于"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"。（VS2019也是如此）
+	</li>
+</ul>
+</br>2. 为OpenMS贡献者创建构建目录，例如mkdir contrib_win64_build
+</br></br>3. 调用CMake来构建项目，请注意，即使您的操作系统仅为32位（交叉编译），您也可以构建64位应用程序，但是在这种情况下，您将无法运行64位应用程序。
+</br><pre><code><xmp>cd <path_to_contrib_build>
+cmake -DBUILD_TYPE=ALL -DNUMBER_OF_JOBS=4 -G "<generator>" -A x64 "<path_to_contrib>"</xmp></code></pre>
+在(generator)您使用时必须在Visual Studio发电机之一。这是因为某些contrib库需要Visual Studio来构建。使用该-A x64标志为contrib构建64位库（32位对于LC-MS数据处理实际上没有任何意义）！键入cmake -help以查看可用生成器的列表。
+</br><pre><code>cd c:\dev\contrib_win64_build
+cmake -DBUILD_TYPE=ALL -DNUMBER_OF_JOBS=4 -G "Visual Studio 16 2019" -A x64 "c:\dev\OpenMS\contrib"</code></pre>
+4. 将(path_to_contrib_build)/ lib目录添加到PATH环境变量中（这样Windows可以在运行我们的可执行文件时找到DLL）。
+</p>
+<hr class="major"/>
+<h2>QT安装</h2>
+<p>Qt有两种版本：商业的或非商业的-选择适合您的内容：在Qt网站上阅读更多信息对于几个最新的QT5版本，有最新的编译器可用的二进制开发版本。转到https://www.qt.io/download，然后单击右列末尾的“转到开放源代码”以下载安装程序。请按照以下步骤操作，下载，保存并运行安装程序。创建一个Qt帐户。选择一个文件夹，例如"c:\dev\QT"。从组件中选择一个匹配的版本，例如QT 5.10.0和适合您的Visual Studio版本和体系结构的MSVC组件（很可能不再支持64位）。您可以在“工具”下取消选择QTCreator。接受许可证，如果需要，选择“开始”菜单项并安装。结果文件显示在 "c:\dev\QT\$VERSION".</p>
+<p>要从源代码构建Qt，请从其git仓库广告中下载Qt5，请按照以下步骤操作：</p>
+<p>如果要自己编译Qt，请遵循以下步骤：</p>
+<p>1. 非商业性的：
+	<br>1. 安装perl（例如Strawberry Perl），Python和git
+	<br>2. 通过git或从网站以源码包的形式 下载Qt5源
+<pre><code>git clone git：//github.com/qt/qt5 --branch 5.9 qt-5.9</code></pre>
+	<br>3. 通过以下方式激活所需的模块：
+<pre><code>perl init-repository --module-subset="essential,qtsvg" --branch</code></pre>
+<br>4.打开Visual Studio命令行（如果需要64位应用程序，请使用x64版本！）
+<br>5.cd qt-5.9
+<br>6.如果您安装了多个版本的VS，则可能需要-platform为下一个configure命令提供参数（例如-platform win32-msvc2012）
+<br>7.为了节省磁盘空间，我们使用-prefix开关将Qt的必需部分仅安装到您选择的新目录（<path-to-qt>例如，称为c:/dev/Qt/5.9/）中。在此处检查更多选项和受支持的编译器：http : //doc.qt.io/qt-5/configure-options.html（特别是对于开发人员）。请注意，Qt的一部分需要Python进行编译，因此将Python可执行文件添加到您的路径中是一个好主意
+<pre><code>PATH=%PATH%;C:\Python27\
+configure -opensource -skip speech -skip location -nomake tests -nomake examples -confirm-license -opengl dynamic -prefix 
+(path-to-qt)  -platform win32-msvc </code></pre>
+8.<pre><code>nmake</code></pre>
+9.<pre><Code>nmake install</Code></pre>
+</p>
+
+
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

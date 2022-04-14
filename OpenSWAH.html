@@ -1,0 +1,316 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>OpenSWAH的安装</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo">OpenSWAH的安装</a>
+								</header>
+
+							<!-- Content -->
+							<section>
+								<h1><center>在GNU / Linux上安装</center></h1>
+								<hr class="major" />
+									
+								<p>您可以在OpenMS项目的“下载”页面上找到发行版和开发版的链接。所有源代码，包括最新的开发版本，都在github上，可以通过git获得：</p>
+<pre><code># Assuming you are in ~/Development
+git clone https://github.com/OpenMS/OpenMS.git</code></pre>
+<p>从这里开始，这些说明假定您已经解压缩了发行版的tar.gz，并且位于其根目录下，或者检出了开发（git）版本。</br>
+	接下来，我们将关注从源代码构建OpenMS所依赖的依赖项。
+	<hr class="major" />
+	<h2>依赖关系可以二进制形式获得</h2>
+	<p>OpenMS需要在系统上存在其他几个库。其中大多数应该在您的GNU / Linux发行版的存储库中可用。</br>对于通常在发行版存储库中找不到的那些库/版本，我们提供了源代码和构建脚本，称为“ Contrib”构建脚本。Release tar.gz归档文件在contrib /文件夹中包含这些库，如果您构建开发（git）版本，则会在该文件夹中找到一个空的子模块，必须首先使用该子模块进行更新。</p>
+<pre><code>git submodule update --init contrib</code></pre>
+<p><b>尽管如此，以下是所有必需的软件包和库的列表：</b>
+<ul>
+	<li>基本的是gcc / g++（> = 4.9）或具有完全C ++ 11支持的类似ANSI C++编译器，CMake（> = 3.1;建议使用> = 3.9），Qt5，patch，autoconf（> 2.60），automake（> 1.9） ），libtool（libtoolize / glibtoolize）。
+	</li><li>对于要启用完整的功能集，OpenMS需要的最新版本的升压（> = 1.48），Eigen3（> = 3.3.2），WildMagic5，libHDF5，LIBSVM（2.91或更高版本，但没有3.15），SeqAn（> = 1.4。 0，但需要<2.0），glpk（> = 4.45）或CoinMP（> = 1.3.3），zlib，libbz2和Xerces-C（> = 3.1.1）。如果尚未通过软件包管理器安装它们，则应使用我们的contrib构建脚本来构建它们。
+	</li><li>从开发版本构建文档需要doxygen（推荐：> = 1.8.13，要求：> 1.5.4，其中一些可能会在其中出现问题）和pdflatex / texlive / texlive-full。
+	</li><li>构建pyOpenMS（OpenMS的Python绑定）需要Python，Cython和一些Python软件包。请参阅此处以获取更多详细的pyOpenMS构建说明。
+    </li>
+</ul></p>
+<p>对于最常见的发行版，我们已经编译了这些命令，这些命令将安装所需的兼容库。您的发行包装系统中可能有更多的库，但是请注意版本不兼容。</p>
+<b>
+	Fedora / RHEL / CentOS 软件包</b>
+<pre><code># In newer distros change yum to dnf
+sudo yum groupinstall 'Development Tools'
+sudo yum install git tar
+# Especially on older CentOS versions <= 6 add the EPEL repo with additional updated packages
+sudo yum install epel-release
+# Update repo list for the thirdparty repository EPEL
+sudo yum repolist
+# Get REQUIRED installable contrib libraries
+sudo yum install cmake3 qt5-qtbase-gui qt5-qtbase-devel qt5-qtsvg-devel python-devel glpk-devel
+# Get OPTIONAL installable contrib libraries preferably from our Contrib package in the next step.
+#sudo yum boost-devel libsvm-devel libzip-devel zlib-devel xerces-c-devel bzip2-devel libhdf5-devel
+# NOTE that you might need to use cmake3 instead of cmake in the commands of the following steps.</code></pre>
+
+<b>openSUSE> = 13.2</b>
+<pre><code># register obs://build.opensuse.org/devel:libraries:c_c++
+# tools
+sudo zypper install cmake gcc-c++ autoconf git patch automake libtool
+# REQUIRED dependencies
+sudo zypper install libqt5-qtbase-devel libqt5-qtsvg-devel python-devel glpk-devel
+# OPTIONAL dependencies, preferably installed with our Contrib package in the next step
+#sudo zypper install boost-devel libzip-devel zlib-devel \
+# libxerces-c-devel libbz2-devel libsvm-devel libhdf5-10</code></pre>
+
+<b>Ubuntu / Debian
+	（16.04）</b>
+<pre><code># include the ubuntu universe repository and update
+sudo add-apt-repository universe
+sudo apt update
+sudo apt-get install build-essential cmake autoconf patch libtool git automake
+sudo apt-get install qtbase5-dev libqt5svg5-dev libqt5opengl5-dev
+sudo apt-get install libboost-regex-dev libboost-iostreams-dev \
+  libboost-date-time-dev libboost-math-dev libboost-random-dev libsvm-dev \
+  libglpk-dev zlib1g-dev libxerces-c-dev seqan-dev libbz2-dev coinor-libcoinmp-dev libhdf5-dev
+  # Use from contrib: EIGEN; SQLITE; WILDMAGIC (since libwildmagic-dev is buggy)
+</code></pre>
+
+<b>Ubuntu / Debian
+	（> = 17.04）</b>
+<pre><code># include the ubuntu universe repository and update
+sudo add-apt-repository universe
+sudo apt update
+sudo apt-get install build-essential cmake autoconf patch libtool git automake
+sudo apt-get install qtbase5-dev libqt5svg5-dev libqt5opengl5-dev
+sudo apt-get install libeigen3-dev libsqlite3-dev libwildmagic-dev libboost-random1.62-dev \
+  libboost-regex1.62-dev libboost-iostreams1.62-dev libboost-date-time1.62-dev libboost-math1.62-dev \
+  libxerces-c-dev libglpk-dev zlib1g-dev libsvm-dev libbz2-dev seqan-dev coinor-libcoinmp-dev libhdf5-dev
+  # this should eliminate the need for building contrib libraries.</code></pre>
+<b>Ubuntu/Debian
+	(= 19.10)</b>
+<pre><code># include the ubuntu universe repository and update
+sudo add-apt-repository universe
+sudo apt update    
+sudo apt-get install build-essential cmake autoconf patch libtool git automake
+sudo apt-get install qtbase5-dev libqt5svg5-dev libqt5opengl5-dev
+sudo apt-get install libeigen3-dev libsqlite3-dev libwildmagic-dev libboost-random1.67-dev \
+  libboost-regex1.67-dev libboost-iostreams1.67-dev libboost-date-time1.67-dev libboost-math1.67-dev \
+  libxerces-c-dev libglpk-dev zlib1g-dev libsvm-dev libbz2-dev seqan-dev coinor-libcoinmp-dev libhdf5-dev
+  # this should eliminate the need for building contrib libraries.
+	</code></pre>
+	<hr class="major" />
+<h2>建立剩余的依赖关系
+</h2>
+
+<p>您可以并且应该通过尝试配置OpenMS来检查仍需要哪些依赖项（请参阅下一节），它将抱怨任何异常/丢失。</p>
+<p><b>警告：</b></br>如果您的contrib软件包已经以兼容版本安装在您的系统上，则不要安装它。如果您使用的版本不兼容，建议您更新或卸载并使用contrib版本。</p>
+<p><b>注意：</b></br>在大多数情况下，此时剩下的唯一未解决的依赖项（例如，无法通过分发打包系统使用）是SeqAn，WildMagic和CoinOR。如果您在遵循这些说明后仍然对依赖项有疑问，请与我们联系。</p>
+<p>版本的tar.gz包含用于在contrib /文件夹中构建所有依赖项的脚本。对于开发（git）版本，此所谓的子模块文件夹将为空，必须单独检出。</p>
+<pre><code># Assuming you are in ~/Development/OpenMS
+git submodule update --init contrib
+cd ..
+mkdir contrib-build
+cd contrib-build</code></pre>
+<p>对于contrib和OpenMS，我们建议使用源代码外的版本。</p>
+<p><b>注意：</b></br>通常，构建OpenMS时生成的所有文件都必须放在某个地方。如果是在源代码内构建，则所有文件将与源代码一起生成。虽然这很容易，并且是常规./configure + make方法的一种众所周知的做法，但它也会更改您的构建树。它还禁止构建多个配置（例如，Debug and Release或不同的编译器版本）。作为替代方案，CMake提供了执行所谓的源外构建的可能性。此处，所有构建文件，二进制文件，库等均在单独的目录中生成。</p>
+<p>在./contrib-build/文件夹中，执行以下命令以显示可用的构建类型</p>
+<pre><code>cmake -DBUILD_TYPE = LIST ../ OpenMS / contrib</code></pre>
+<p>然后构建SeqAn（可能需要执行其他构建脚本，也可能不需要执行其他构建脚本，具体取决于您的发行版是否未提供依赖项的程序包）：</p>
+<pre><code>cmake -DBUILD_TYPE = SEQAN ../ OpenMS / contrib
+cmake -DBUILD_TYPE = WILDMAGIC ../ OpenMS / contrib
+cmake -DBUILD_TYPE = EIGEN ../ OpenMS / contrib       
+</code></pre>
+<p>为了避免在构建contrib软件包中包含的库时出现问题，contrib-build目录的路径中不应包含任何空格。如果您的发行版未提供某些软件包（或提供的版本与预期版本不同），则有时可以更轻松地手动构建所有依赖关系，从而解决版本不兼容的问题：</p>
+<pre><code>cmake -DBUILD_TYPE = ALL -DNUMBER_OF_JOBS = 4 ../ OpenMS / contrib</code></pre>
+
+<hr class="major" />
+<h2>没有root权限的构建</h2>
+<p>如果您在没有root用户访问权限的系统（例如共享群集）上，则需要考虑一些其他注意事项，尤其是有关依赖项。具体来说，某些较旧的Red Hat系统安装了较旧的库，这些库可能会干扰OpenMS所需的较新版本。推荐的安装过程是使用contrib软件包从源代码编译<b>所有</b>依赖项：</p>
+<pre><code>cmake -DBUILD_TYPE = LIST ../ OpenMS / contrib
+cmake -DBUILD_TYPE = ALL -DNUMBER_OF_JOBS = 4 ../ OpenMS / contrib</code></pre>
+<p>或者，可以通过提供-DBUILD_TYPE=...适当的参数来构建一个软件包。此外，如果您的服务器上未提供Qt或您的环境上的版本是Qt，则您可能必须自己编译Qt，这可以从http://download.qt.io/official_releases/qt获得（使用版本> 5.5）。太老。然后，您可以使用传统./configure –prefix=/path && make && make install顺序来编译和安装Qt（请注意，–prefix=/path如果您没有root特权，则应将其设置为本地目录）。</p>
+<hr class="major" />
+<h2>配置和构建OpenMS / TOPP</h2>
+<p>下一步是在OpenMS根目录旁边创建一个构建目录，例如，OpenMS-build（请参阅上面关于源代码外构建的说明）。</p>
+<pre><code># Assuming you are in ~/Development and OpenMS is also located in
+# ~/Development
+mkdir OpenMS-build
+cd OpenMS-build</code></pre>
+<p>在OpenMS构建目录中，我们执行CMake来配置OpenMS。您应该/PATH/TO/contrib-build/用上述构建的贡献路径替换。确保对贡献使用绝对（而非相对）路径，以避免任何潜在的问题。</p>
+<p><b>注意：</b></br>由于boost库的静态版本是在某些系统（例如Ubuntu）上使用不同的设置编译的，因此您必须将BOOST_USE_STATIC设置为OFF或使用我们的贡献进行编译。</br><pre><code>cmake -DOPENMS_CONTRIB_LIBS = “ / PATH / TO / contrib-build” -DBOOST_USE_STATIC = OFF ../ OpenMS</code></pre></p>
+<p>如果CMake在查找系统库时遇到问题，则可以考虑添加：</p>
+<pre><code>- DCMAKE_PREFIX_PATH="/usr;/usr/local"</code></pre>
+<p>到CMake选项。</p>
+<p>如果CMake在查找Qt5时遇到问题（通常是第一个失败的Qt5SvgConfig.cmake），则可以考虑添加：</p>
+<pre><code>-DQt5_DIR=/PATH/TO/qt/5.9.7/gcc_64/lib/cmake/Qt5</code></pre>
+<p>到CMake选项，具体/PATH/TO/qt/5.9.7/gcc_64取决于您的系统设置和Qt版本。
+
+</br>在配置OpenMS时，请考虑设置WITH_GUI=Off和HAS_XSERVER=Off，尤其是因为您可能尚未使用OpenGL编译Qt并且您可能没有X服务器。
+	
+</br>您可以-DVARIABLE=VALUE在调用CMake时设置更多CMake变量添加选项。最重要的CMake变量是：</p>
+<b>OPENMS_CONTRIB_LIBS/CMAKE_PREFIX_PATH</b>
+
+<p>	从github.com/OpenMS/contrib中查找contrib库的单独搜索路径，在CMAKE_PREFIX_PATH之前内部考虑了该路径，用于搜索，链接和添加包含目录。
+	contrib库的其他搜索路径。
+	[仅限MacOSX]如果要使用通过Homebrew或MacPorts安装的库，则可能需要提供相应的路径
+	
+	-DCMAKE_PREFIX_PATH=/usr/local/Cellar适用-DCMAKE_PREFIX_PATH=/opt/local于MacPorts的Homebrew
+	
+	请记住，Homebrew和MacPorts均不提供所有库，因此您还需要通过-DOPENMS_CONTRIB_LIBS指定自建贡献文件的路径</p>
+<b>Qt5_DIR</b>
+<p>	Qt5 CMake文件的其他搜索路径。使用/PATH/TO/QT_INSTALLATION/lib/cmake/Qt5的价值。</p>
+<b>HAS_XSERVER=On/Off</b>
+<p>[仅Linux / MacOS]定义在构建OpenMS时是否有运行中的X Server。由于构建文档的一部分并运行某些测试需要运行X Server，因此可以使用此标志来禁用文档的那些部分以及需要X Server的测试。（默认：开）</p>
+
+<b>ADDRESS_SANITIZER=On/Off</b>
+<p>[仅适用于g ++ / clang]启用/禁用地址清理器（ASAN）以查找访问冲突和其他错误。</p>
+<b>WITH_GUI=On/Off</b>
+<p>定义是否应该构建OpenMS GUI工具（TOPPView，TOPPAS）。如果您打算在没有GUI的情况下使用OpenMS，请将此标志设置为“关”（默认：开）</p>
+<b>ENABLE_TUTORIALS=On/Off</b>
+<p>使目标能够构建和安装pdf教程（需要LaTeX）。（默认：开）</p>
+<b>ENABLE_DOCS=On/Off</b>
+<p>启用文档目标，从而可以构建OpenMS文档。（默认：开）</p>
+<b>GIT_TRACKING=On/Off</b>
+<p>将Git校验和嵌入到库中。（默认：开）</p>
+<b>ENABLE_UPDATE_CHECK=On/Off</b>
+<p>调用任何TOPP / UTIL时，请在线检查OpenMS更新。（默认：开）</p>
+<b>CMAKE_BUILD_TYPE</b>
+<p>[仅makefile文件；不适用于XCode或VS]应该为“发布”（启用优化）或“调试”（启用调试信息以及前提条件/后置条件检查）。
+	默认值为“发布”。</p>
+<b>CMAKE_CXX_COMPILER</b>
+<p>定义要使用的C++编译器。</p>
+<b>MY_CXX_FLAGS</b>
+<p>您想要添加的其他自定义C ++编译选项（必须适合您选择的编译器）。例如，这对于将调试符号添加到发布版本中或进行性能分析（例如，对于'... -DMY_CXX_FLAGS =“-Og; -ggdb; -g3; -fno-omit-frame-pointer”）可能很有用。 ...'）</p>
+<b>CMAKE_C_COMPILER</b>
+<p>定义要使用的C编译器。这应该与C ++编译器匹配。混合编译器（例如C++的clang++和C的gcc）可能会导致不确定的行为，因为某些内部设置（例如OpenMP支持）是使用C编译器确定的，并且假定与C++编译器相同。</p>
+<b>SEARCH_ENGINES_DIRECTORY （可选的）</b>
+<p>第三方搜索引擎（X！Tandem，OMSSA，MyriMatch，MSGF +，Fido）的位置。展平平台后，该目录应与https://github.com/OpenMS/THIRDPARTY上搜索引擎存储库中的示例结构相同。/。仅在OpenMS安装程序中包含第三方工具时才需要此目录。</p>
+<b>PYOPENMS</b>
+<p>使用ON启用目标的Python绑定，另请参见pyOpenMS（Python绑定）。</p>
+<b>CMAKE_INSTALL_PREFIX</b>
+<p>	
+	bin /和lib /目录应安装到的路径（当sudo make install希望在系统范围内进行安装：例如-DCMAKE_INSTALL_PREFIX =/usr/local/）</p>
+<p>注：不支持在安装后移动这些目录。
+
+</br>对于开发，不支持安装前缀。在这种情况下，必须建立OpenMS！</p>
+<p>执行时会显示CMake变量的完整列表</p>
+<pre><code>ccmake.</code></pre>
+<p>仅在执行cmake一次后才能工作（请参阅配置和构建OpenMS / TOPP）</p>
+<p>为了构建OpenMS库，TOPP工具，测试和本文档，请执行以下命令：</p>
+<pre><code>make</code></pre>
+<p>高级用户可以通过调用以下命令列出单独的品牌目标：</p>
+<pre><code>make targets</code></pre>
+<hr class="major" />
+<h2>准备使用OpenMS的环境</h2>
+<p>上一步需要花费大量时间，与此同时，您可以准备环境以轻松使用OpenMS：</p>
+<p>确保将/PATH/TO/OpenMS/lib/（例如/ home / smith / OpenMS / lib /）添加到环境变量LD_LIBRARY_PATH中。最好的方法是编辑$HOME/.bashrc并添加以下内容</p>
+<pre><code>export LD_LIBRARY_PATH="/PATH/TO/OpenMS/lib:$LD_LIBRARY_PATH"</code></pre>
+<p>TOPP工具将构建在/ PATH / TO / OpenMS / bin /文件夹中。将此路径添加到环境变量PATH中，以在系统上的任何位置使用命令。
+
+</br>这是使用TOPPView中的TOPP工具所必需的。
+	
+</br>您可以通过将以下内容附加到您的计算机上来执行此操作$HOME/.bashrc（请勿使用波浪号〜来缩写主文件夹）</p>
+<pre><code>export PATH=$PATH:/PATH/TO/OpenMS/bin</code></pre>
+<p>通过执行应用两个更改</p>
+<pre><code>source ~/.bashrc</code></pre>
+<b>注意：</b>
+<p>当您打算使用第三方搜索或推理引擎（例如XTandem或Fido）时，它们的二进制文件也必须位于中PATH。使用以下命令构建它们或检查发行时支持的版本的预构建可执行文件：
+<pre><code>git submodule update --init THIRDPARTY</code></pre>
+并对您要使用的每个第三方工具进行以下调整（针对XTandem显示）：
+<pre><code>export PATH=~/Development/OpenMS/THIRDPARTY/${FOLDER_FOR_YOUR_OS_ARCH}/XTandem:${PATH}</code></pre>
+如果要在CMake中启用相应的测试，则必须在配置和生成项目之前进行。
+</p>
+<hr class="major" />
+<h2>运行OpenMS</h2>
+<p>如果“配置和构建OpenMS / TOPP”中的构建已准备就绪，则现在可以通过执行以下命令来运行GNU / Linux OpenMS工具：</p>
+<pre><code>FileInfo</code></pre>
+<p>构建OpenMS之后，通过OpenMS中的适配器工具使用的某些第三方软件可能还需要安装JavaVM。</p>
+<hr class="major" />
+<h2>测试您的OpenMS / TOPP安装</h2>
+<p>安装OpenMS和TOPP之后，应该通过执行以下命令来测试安装：</p>
+<pre><code>make test</code></pre>
+<p>或者</p>
+<pre><code>ctest</code></pre>
+<p>使用ctest，您还可以使用-R [REGEX]选项仅执行部分测试，并使用-j参数并行运行测试。有关更多信息，请参见ctest手册页。</p>
+<pre><code>ctest -R TOPP_ -j 4</code></pre>
+<p>将使用4个作业运行所有TOPP测试。通过执行以下操作确保已预先构建了所有测试</p>
+<pre><code>make</code></pre>
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+
+							<!-- Search -->
+								<section id="search" class="alt">
+									<form method="post" action="#">
+										<input type="text" name="query" id="query" placeholder="Search" />
+									</form>
+								</section>
+
+							<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Home</a></li>
+									<li><a href="news.html">News</a></li>
+									<li><a href="team.html">Team</a></li>
+									
+									<li>
+										<span class="opener">SOFTWARE</span>
+										<ul>
+											<li><a href="SOFTWARE.html">Identification</a></li>
+											<li><a href="SOFTWARE2.html">定量</a></li>
+											
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>For a long time, we welcome doctoral candidates who are interested in the theoretical model research of physical biology and physical medicine to join us for post doctoral research. For details, please refer to the website of Personnel Department of Xiamen University. If you are interested, please contact Shuai Jianwei</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:jianweishuai@xmu.edu.cn">jianweishuai@xmu.edu.cn</a></li>
+									<li class="icon solid fa-phone">(000) 000-0000</li>
+									<li class="icon solid fa-home">Haiyunyuan Campus of Xiamen University<br />Room 354, Physics Building</li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
